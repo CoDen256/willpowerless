@@ -6,8 +6,13 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class JudgeController {
+
+    @GetMapping("/check")
+    fun index(): String {
+        return "Hi."
+    }
     @GetMapping("/check")
     fun stuff(): String{
-        return ("Hello World! ") + randomPronouncable(5, 10)
+        return randomPronouncable(5, 10) + ("Hello World! ")
     }
 }

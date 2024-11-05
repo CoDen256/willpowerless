@@ -1,1 +1,11 @@
 spring.application.name: impulse-judge
+
+
+image:
+  publish:
+    username: <user>
+    password: <pass>
+
+server:
+  address: 0.0.0.0
+  port: 8080
