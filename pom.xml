@@ -33,8 +33,8 @@
     <dependencies>
         <dependency>
             <groupId>io.github.coden</groupId>
-            <artifactId>core-utils</artifactId>
-            <version>1.6</version>
+            <artifactId>wellpass-api</artifactId>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
