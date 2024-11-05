@@ -24,7 +24,7 @@ class JudgeController(
     @GetMapping("/check")
     fun check(): Mono<ResponseEntity<Verdict>> {
         return wellpass
-            .checkins(LocalDate.now())
+            .checkins(LocalDate.now().minusMonths(4), LocalDate.now())
             .timeout(Duration.ofSeconds(60))
             .map {
                 val match = rule.test(it)
