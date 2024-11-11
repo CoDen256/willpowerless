@@ -8,15 +8,11 @@ opkg update
 # devices that are subject to the rules
 # mac filtering is not required, will deny any AP by default
 
-# TODO limit rate 10/minute burst 1 packets for logging only
+# TODO <limit rate 10/minute burst 1 packets> for logging only
 
 uci add firewall include
 
-echo 'ip ttl 254 counter packets 7542 bytes 456224 log prefix "Dropped TTL254: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' > /etc/custom_firewall.nft # the same as: nft insert "rule inet fw4 forward_lan ip ttl 254 reject
-echo 'ip ttl 126 counter packets 7542 bytes 456224 log prefix "Dropped TTL126: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' >> /etc/custom_firewall.nft
-echo 'ip ttl 62  counter packets 7542 bytes 456224 log prefix "Dropped TTL62: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' >> /etc/custom_firewall.nft
-echo 'ip ttl 30  counter packets 7542 bytes 456224 log prefix "Dropped TTL30: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' >> /etc/custom_firewall.nft
-
+echo 'ip ttl {254, 126, 62, 30} counter packets 7542 bytes 456224 log prefix "Dropped from AP: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' > /etc/custom_firewall.nft # the same as: nft insert "rule inet fw4 forward_lan ip ttl 254 reject
 cat /etc/custom_firewall.nft
 
 uci set firewall.@include[-1].type='nftables'
