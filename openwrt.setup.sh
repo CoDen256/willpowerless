@@ -1,52 +1,29 @@
-# nftables already installed, do not install iptables
+opkg update
+########
 
-# Side note
-# add rule: nft add rule inet fw4 input ether saddr <addr> log prefix "Direct_Phone_TTL" level info
-# add rule: nft add rule inet fw4 forward_lan ether saddr C2:F2:57:9C:EE:27 log prefix "Direct_Phone_TTL" level info
-# add rule: nft add rule inet fw4 forward_lan ether saddr C2:F2:57:9C:EE:27 drop
-# list rules with handle numbers:  nft -a list ruleset
-# delete rule:  nft delete rule inet fw4 forward_lan handle 1347
+# packets come with ttl generated either 256/128/64
+# coming directly to the router ttl is down 1, thus 127 or 63,mac of the packet is the mac of the actual sender
+# if the packets coming from AP to router, then ttl is 126 or 62,mac of the packet is just an AP, the actual sender one is behind the AP
+# Deny any possible AP, to provide access via router on devices that are not subject to the rules for
+# devices that are subject to the rules
+# mac filtering is not required, will deny any AP by default
 
-uci add firewall rule # =cfg0e92bd
-uci set firewall.@rule[-1].name='Drop'
-uci add_list firewall.@rule[-1].proto='all'
-uci set firewall.@rule[-1].src='lan'
-uci add_list firewall.@rule[-1].src_mac='C2:F2:57:9C:EE:27'
-#uci add_list firewall.@rule[-1].src_mac='34:1C:F0:CD:FA:E8'
-uci set firewall.@rule[-1].dest='wan'
-uci set firewall.@rule[-1].target='REJECT'
-uci set firewall.@rule[-1].log='1'
-uci commit firewall
-/etc/init.d/firewall reload
-
-# custom rules are done via specifiing nft snippets, added where
-# same as add rule inet fw4 forward_lan ether saddr C2:F2:57:9C:EE:27 reject
-echo "ether saddr C2:F2:57:9C:EE:27 reject" > /etc/custom_firewall.nft
-#echo "add rule inet fw4 forward_lan ether saddr C2:F2:57:9C:EE:27 reject" > /etc/custom_firewall.nft, maybe also works
+# TODO limit rate 10/minute burst 1 packets for logging only
 
 uci add firewall include
+
+echo 'ip ttl 254 counter packets 7542 bytes 456224 log prefix "Dropped TTL254: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' > /etc/custom_firewall.nft # the same as: nft insert "rule inet fw4 forward_lan ip ttl 254 reject
+echo 'ip ttl 126 counter packets 7542 bytes 456224 log prefix "Dropped TTL126: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' >> /etc/custom_firewall.nft
+echo 'ip ttl 62  counter packets 7542 bytes 456224 log prefix "Dropped TTL62: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' >> /etc/custom_firewall.nft
+echo 'ip ttl 30  counter packets 7542 bytes 456224 log prefix "Dropped TTL30: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' >> /etc/custom_firewall.nft
+
+cat /etc/custom_firewall.nft
+
 uci set firewall.@include[-1].type='nftables'
 uci set firewall.@include[-1].path='/etc/custom_firewall.nft'
-uci set firewall.@include[-1].chain='forward_lan'
+uci set firewall.@include[-1].chain='forward'
 uci set firewall.@include[-1].position='chain-pre'
 uci commit firewall
 cat /etc/config/firewall
 /etc/init.d/firewall reload
-nft -a list ruleset # ether saddr C2:F2:57:9C:EE:27 reject will be added in forward_lan chain at the very beginning
-
-# only via include nft rules will be added, otherwise they will be removed on reload, if just added to the ruleset
-#
-
-
-#uci del firewall.@include[-1]
-#uci del firewall.@rule[-1]
-
-# TARGET CONFIG IS /etc/config/firewall
-# it should include all the rules
-# if custom rules needed, then add to firewall config
-
-
-# uci -> firewall  (uses nft via 'include')
-#
-# uci helps with writing to /etc/config/firewall
-# nftables apply actual rules in realtime, but are flushed upon restart
+nft -a list ruleset
