@@ -116,6 +116,10 @@ crontab -l
 ### opendns
 cp /tmp/resolv.conf.d/resolv.conf.auto backup/resolv.conf.auto
 cat > /tmp/resolv.conf.d/resolv.conf.auto <<EOF
-> nameserver 208.67.222.123
-> nameserver 208.67.220.123
-> EOF
+nameserver 208.67.222.123
+nameserver 208.67.220.123
+EOF
+
+# or
+# 208.67.222.222
+# 208.67.220.220
