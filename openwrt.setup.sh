@@ -1,4 +1,11 @@
+# tplink ax23
+# install openwrt via uploading factory.bin to the router https://openwrt.org/toh/tp-link/archer_ax23_v1
+
 opkg update
+####
+# Luci -> wifi -> enable radio1 -> set password
+
+
 ########
 
 # packets come with ttl generated either 256/128/64
@@ -23,3 +30,12 @@ uci commit firewall
 cat /etc/config/firewall
 /etc/init.d/firewall reload
 nft -a list ruleset
+
+### disable buttons
+mkdir backup
+cp -r /etc/rc.button/ ./backup/rc.button
+
+for f in /etc/rc.button/*; do printf "#!/bin/sh\necho 'executing $f'> /root/buttons.log" > "$f"; done
+
+
+### TODO potentially failsafe mode is possible-> disable
