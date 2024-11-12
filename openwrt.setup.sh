@@ -39,3 +39,41 @@ for f in /etc/rc.button/*; do printf "#!/bin/sh\necho 'executing $f'> /root/butt
 
 
 ### TODO potentially failsafe mode is possible-> disable
+
+
+
+#### add led.sh
+
+
+
+#### add impulse control traffic
+# hard control
+uci add firewall rule
+uci set firewall.@rule[-1].name='Impulse Control (Hard)'
+uci add_list firewall.@rule[-1].proto='all'
+uci set firewall.@rule[-1].src='*'
+uci set firewall.@rule[-1].dest='wan'
+uci add_list firewall.@rule[-1].src_mac='E8:9C:25:43:3F:DB'
+uci add_list firewall.@rule[-1].src_mac='9C:53:22:35:10:40'
+uci set firewall.@rule[-1].target='REJECT'
+uci set firewall.@rule[-1].enabled='0'
+hard_id=$(uci show firewall.@rule[-1] | head -n1 | cut -d'.' -f2 | cut -d'=' -f1)
+
+# soft control
+uci add firewall rule
+uci set firewall.@rule[-1].name='Impulse Control (Soft)'
+uci add_list firewall.@rule[-1].proto='all'
+uci set firewall.@rule[-1].src='*'
+uci set firewall.@rule[-1].dest='wan'
+uci add_list firewall.@rule[-1].src_mac='C2:F2:57:9C:EE:27'
+uci add_list firewall.@rule[-1].src_mac='34:1C:F0:CD:FA:E8'
+uci set firewall.@rule[-1].target='REJECT'
+uci set firewall.@rule[-1].enabled='0'
+soft_id=$(uci show firewall.@rule[-1] | head -n1 | cut -d'.' -f2 | cut -d'=' -f1)
+
+uci commit firewall
+/etc/init.d/firewall reload
+
+echo "export HARD_ID=$hard_id" >> /etc/profile
+echo "export SOFT_ID=$soft_id" >> /etc/profile
+source /etc/profile
