@@ -1,5 +1,7 @@
-#!/bin/sh
+#!/bin/sh -l
 echo ""
+NOW=$( date '+%F_%H:%M:%S' )
+echo $NOW
 # Define variables
 if [ -z "$1" ]; then
     echo "Usage: $0 <URL>"
@@ -9,10 +11,9 @@ URL="$1"
 # Make HTTP request and check if the response is successful
 wget --spider --timeout=600 "$URL"
 RESPONSE=$?
-NOW=$( date '+%F_%H:%M:%S' )
 
-echo $NOW
 echo $RESPONSE
+echo "SOFT: $SOFT_ID, HARD: $HARD_ID"
 # Check the response code
 if [ "$RESPONSE" -ne 0 ]; then
     uci set firewall.$SOFT_ID.enabled='1'
