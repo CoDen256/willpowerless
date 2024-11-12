@@ -41,11 +41,6 @@ for f in /etc/rc.button/*; do printf "#!/bin/sh\necho 'executing $f'> /root/butt
 ### TODO potentially failsafe mode is possible-> disable
 
 
-
-#### add led.sh
-
-
-
 #### add impulse control traffic
 # hard control
 uci add firewall rule
@@ -74,6 +69,36 @@ soft_id=$(uci show firewall.@rule[-1] | head -n1 | cut -d'.' -f2 | cut -d'=' -f1
 uci commit firewall
 /etc/init.d/firewall reload
 
+echo "" >> /etc/profile
 echo "export HARD_ID=$hard_id" >> /etc/profile
+echo "" >> /etc/profile
 echo "export SOFT_ID=$soft_id" >> /etc/profile
+echo "" >> /etc/profile
+echo "export CHECK_URL=https://impulse-judge-service.onrender.com/check" >> /etc/profile
+echo "" >> /etc/profile
 source /etc/profile
+
+
+
+# use to disable/enable
+uci set firewall.$SOFT_ID.enabled='1'
+uci set firewall.$HARD_ID.enabled='0'
+uci commit firewall && /etc/init.d/firewall reload
+
+
+
+#### add guard.sh and led.sh
+chmod +x /root/guard.sh
+chmod +x /root/led.sh
+
+
+### setup and add cron tab for checking judge
+crontab -l > cr
+cat cr
+# echo new cron into cron file
+# every 30 minutes from 8 till 24
+echo "*/5 8-23 * * * /root/guard.sh $CHECK_URL >> /root/guard.log 2>&1" >> cr
+# install new cron file
+crontab cr
+rm cr
+crontab -l
