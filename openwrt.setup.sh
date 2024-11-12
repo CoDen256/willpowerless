@@ -111,3 +111,11 @@ echo "0 7 * * 1 rm /root/guard.log" >> cr
 crontab cr
 rm cr
 crontab -l
+
+
+### opendns
+cp /tmp/resolv.conf.d/resolv.conf.auto backup/resolv.conf.auto
+cat > /tmp/resolv.conf.d/resolv.conf.auto <<EOF
+> nameserver 208.67.222.123
+> nameserver 208.67.220.123
+> EOF
