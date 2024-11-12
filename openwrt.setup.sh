@@ -62,6 +62,7 @@ uci set firewall.@rule[-1].src='*'
 uci set firewall.@rule[-1].dest='wan'
 uci add_list firewall.@rule[-1].src_mac='C2:F2:57:9C:EE:27'
 uci add_list firewall.@rule[-1].src_mac='34:1C:F0:CD:FA:E8'
+uci add_list firewall.@rule[-1].src_mac='0A:DF:73:F0:9D:8B'
 uci set firewall.@rule[-1].target='REJECT'
 uci set firewall.@rule[-1].enabled='0'
 soft_id=$(uci show firewall.@rule[-1] | head -n1 | cut -d'.' -f2 | cut -d'=' -f1)
@@ -92,12 +93,20 @@ chmod +x /root/guard.sh
 chmod +x /root/led.sh
 
 
+#### disable existing led green for wan
+uci set system.led_wan.sysfs='green:wps'
+uci del system.led_wan.mode
+uci add_list system.led_wan.mode='link'
+uci add_list system.led_wan.mode='tx'
+uci add_list system.led_wan.mode='rx'
+
 ### setup and add cron tab for checking judge
 crontab -l > cr
 cat cr
 # echo new cron into cron file
 # every 30 minutes from 8 till 24
 echo "*/30 8-23 * * * /root/guard.sh $CHECK_URL >> /root/guard.log 2>&1" >> cr
+echo "0 7 * * 1 rm /root/guard.log" >> cr
 # install new cron file
 crontab cr
 rm cr
