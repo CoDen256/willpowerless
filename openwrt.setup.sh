@@ -97,7 +97,7 @@ crontab -l > cr
 cat cr
 # echo new cron into cron file
 # every 30 minutes from 8 till 24
-echo "*/5 8-23 * * * /root/guard.sh $CHECK_URL >> /root/guard.log 2>&1" >> cr
+echo "*/30 8-23 * * * /root/guard.sh $CHECK_URL >> /root/guard.log 2>&1" >> cr
 # install new cron file
 crontab cr
 rm cr
