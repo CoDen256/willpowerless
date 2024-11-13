@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import java.time.Duration
@@ -22,7 +23,8 @@ class JudgeController(
         return "Hi."
     }
     @GetMapping("/check")
-    fun check(): Mono<ResponseEntity<Verdict>> {
+    fun check(@RequestParam(required = false, defaultValue = "false") hard: Boolean): Mono<ResponseEntity<Verdict>> {
+        println(hard)
         return wellpass
             .checkins(LocalDate.now().minusMonths(4), LocalDate.now())
             .timeout(Duration.ofSeconds(60))
