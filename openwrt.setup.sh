@@ -61,7 +61,7 @@ uci set firewall.@rule[-1].dest='wan'
 uci add_list firewall.@rule[-1].src_mac='C2:F2:57:9C:EE:27'
 uci add_list firewall.@rule[-1].src_mac='34:1C:F0:CD:FA:E8'
 uci add_list firewall.@rule[-1].src_mac='0A:DF:73:F0:9D:8B'
-#uci add_list firewall.@rule[-1].src_mac='00:C0:CA:AD:D0:23'
+uci add_list firewall.@rule[-1].src_mac='00:C0:CA:AD:D0:23'
 uci set firewall.@rule[-1].target='REJECT'
 uci set firewall.@rule[-1].enabled='0'
 soft_id=$(uci show firewall.@rule[-1] | head -n1 | cut -d'.' -f2 | cut -d'=' -f1)
@@ -118,12 +118,13 @@ crontab -l
 
 
 ### opendns
+### copy resolv.conf
 cp /tmp/resolv.conf.d/resolv.conf.auto backup/resolv.conf.auto
-cat > /tmp/resolv.conf.d/resolv.conf.auto <<EOF
-nameserver 208.67.222.123
-nameserver 208.67.220.123
-EOF
-
-# or
-# 208.67.222.222
-# 208.67.220.220
+uci del dhcp.cfg01411c.nonwildcard
+uci del dhcp.cfg01411c.boguspriv
+uci del dhcp.cfg01411c.filterwin2k
+uci del dhcp.cfg01411c.filter_aaaa
+uci del dhcp.cfg01411c.filter_a
+uci del dhcp.cfg01411c.nonegcache
+uci set dhcp.cfg01411c.resolvfile='/root/resolv.conf'
+uci commit dhcp && /etc/init.d/dhcp reload
