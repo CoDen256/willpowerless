@@ -24,13 +24,13 @@ class JudgeController(
     }
     @GetMapping("/check")
     fun check(@RequestParam(required = false, defaultValue = "false") hard: Boolean): Mono<ResponseEntity<Verdict>> {
-        println(hard)
         return wellpass
             .checkins(LocalDate.now().minusMonths(4), LocalDate.now())
             .timeout(Duration.ofSeconds(60))
             .map {
                 val match = rule.test(it)
-                Verdict(!match.allowed, match.reason, it)
+                val innocent = match.allowed || hard
+                Verdict(!innocent, match.reason, it)
             }
             .map {
                 if (it.guilty){
