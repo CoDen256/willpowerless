@@ -16,11 +16,11 @@ echo $RESPONSE
 echo "SOFT: $SOFT_ID, HARD: $HARD_ID"
 # Check the response code
 if [ "$RESPONSE" -ne 0 ]; then
-    uci set firewall.$SOFT_ID.enabled='1'
+    uci set firewall.$HARD_ID.enabled='1'
     uci commit firewall && /etc/init.d/firewall reload
-    /root/led.sh -1
+    /root/led.sh 0
 else
-    uci set firewall.$SOFT_ID.enabled='0'
+    uci set firewall.$HARD_ID.enabled='0'
     uci commit firewall && /etc/init.d/firewall reload
-    /root/led.sh 1
+    echo "No punishment..."
 fi

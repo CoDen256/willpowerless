@@ -46,10 +46,8 @@ for f in /etc/rc.button/*; do printf "#!/bin/sh\necho 'executing $f'> /root/butt
 uci add firewall rule
 uci set firewall.@rule[-1].name='Impulse Control (Hard)'
 uci add_list firewall.@rule[-1].proto='all'
-uci set firewall.@rule[-1].src='*'
+uci set firewall.@rule[-1].src='lan'
 uci set firewall.@rule[-1].dest='wan'
-uci add_list firewall.@rule[-1].src_mac='E8:9C:25:43:3F:DB'
-uci add_list firewall.@rule[-1].src_mac='9C:53:22:35:10:40'
 uci set firewall.@rule[-1].target='REJECT'
 uci set firewall.@rule[-1].enabled='0'
 hard_id=$(uci show firewall.@rule[-1] | head -n1 | cut -d'.' -f2 | cut -d'=' -f1)
@@ -58,11 +56,12 @@ hard_id=$(uci show firewall.@rule[-1] | head -n1 | cut -d'.' -f2 | cut -d'=' -f1
 uci add firewall rule
 uci set firewall.@rule[-1].name='Impulse Control (Soft)'
 uci add_list firewall.@rule[-1].proto='all'
-uci set firewall.@rule[-1].src='*'
+uci set firewall.@rule[-1].src='lan'
 uci set firewall.@rule[-1].dest='wan'
 uci add_list firewall.@rule[-1].src_mac='C2:F2:57:9C:EE:27'
 uci add_list firewall.@rule[-1].src_mac='34:1C:F0:CD:FA:E8'
 uci add_list firewall.@rule[-1].src_mac='0A:DF:73:F0:9D:8B'
+#uci add_list firewall.@rule[-1].src_mac='00:C0:CA:AD:D0:23'
 uci set firewall.@rule[-1].target='REJECT'
 uci set firewall.@rule[-1].enabled='0'
 soft_id=$(uci show firewall.@rule[-1] | head -n1 | cut -d'.' -f2 | cut -d'=' -f1)
@@ -88,8 +87,9 @@ uci commit firewall && /etc/init.d/firewall reload
 
 
 
-#### add guard.sh and led.sh
+#### add guard.sh and led.sh and guard-hard.sh
 chmod +x /root/guard.sh
+chmod +x /root/guard-hard.sh
 chmod +x /root/led.sh
 
 
@@ -104,9 +104,13 @@ uci add_list system.led_wan.mode='rx'
 crontab -l > cr
 cat cr
 # echo new cron into cron file
-# every 30 minutes from 8 till 24
+# every 30 minutes
 echo "*/30 8-23 * * * /root/guard.sh $CHECK_URL >> /root/guard.log 2>&1" >> cr
+# hard check only every day at 9:20
+echo "20 9 * * * /root/guard-hard.sh $CHECK_URL?hard=true >> /root/guard.hard.log 2>&1" >> cr
+# cleanup
 echo "0 7 * * 1 rm /root/guard.log" >> cr
+echo "0 7 */10 * * rm /root/guard.hard.log" >> cr
 # install new cron file
 crontab cr
 rm cr
