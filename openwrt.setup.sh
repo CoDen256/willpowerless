@@ -4,7 +4,7 @@
 opkg update
 ####
 # Luci -> wifi -> enable radio1 -> set password
-
+# System -> general settings -> timezone
 
 ########
 
@@ -38,7 +38,7 @@ cp -r /etc/rc.button/ ./backup/rc.button
 for f in /etc/rc.button/*; do printf "#!/bin/sh\necho 'executing $f'> /root/buttons.log" > "$f"; done
 
 
-### TODO potentially failsafe mode is possible-> disable
+# TODO potentially failsafe mode is possible-> disable
 
 
 #### add impulse control traffic

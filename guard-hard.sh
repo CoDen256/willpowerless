@@ -16,9 +16,20 @@ echo $RESPONSE
 echo "SOFT: $SOFT_ID, HARD: $HARD_ID"
 # Check the response code
 if [ "$RESPONSE" -ne 0 ]; then
-    uci set firewall.$HARD_ID.enabled='1'
-    uci commit firewall && /etc/init.d/firewall reload
-    /root/led.sh 0
+    echo "Checking again"
+      # check again
+    wget --spider --timeout=600 "$URL"
+    RESPONSE_AGAIN=$?
+
+    if [ "$RESPONSE_AGAIN" -ne 0 ]; then
+          uci set firewall.$HARD_ID.enabled='1'
+          uci commit firewall && /etc/init.d/firewall reload
+          /root/led.sh 0
+    else
+          uci set firewall.$HARD_ID.enabled='0'
+          uci commit firewall && /etc/init.d/firewall reload
+          echo "No punishment..."
+    fi
 else
     uci set firewall.$HARD_ID.enabled='0'
     uci commit firewall && /etc/init.d/firewall reload
