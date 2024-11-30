@@ -66,6 +66,34 @@ uci set firewall.@rule[-1].target='REJECT'
 uci set firewall.@rule[-1].enabled='0'
 soft_id=$(uci show firewall.@rule[-1] | head -n1 | cut -d'.' -f2 | cut -d'=' -f1)
 
+
+##### add additional controls
+# sleepy time
+uci add firewall rule
+uci set firewall.@rule[-1].name='Sleepy time'
+uci add_list firewall.@rule[-1].proto='all'
+uci set firewall.@rule[-1].src='lan'
+uci set firewall.@rule[-1].dest='wan'
+uci add_list firewall.@rule[-1].src_mac='34:1C:F0:CD:FA:E8'
+uci add_list firewall.@rule[-1].src_mac='0A:DF:73:F0:9D:8B'
+uci add_list firewall.@rule[-1].src_mac='72:33:6D:86:3E:BC'
+uci add_list firewall.@rule[-1].stop_time='06:00:00'
+uci add_list firewall.@rule[-1].start_time='22:30:00'
+uci set firewall.@rule[-1].target='REJECT'
+uci set firewall.@rule[-1].enabled='0'
+
+# restrict adb over wifi
+uci add firewall rule
+uci set firewall.@rule[-1].name='ADB over WiFi'
+uci add_list firewall.@rule[-1].proto='all'
+uci set firewall.@rule[-1].src='lan'
+uci set firewall.@rule[-1].dest='lan'
+uci add_list firewall.@rule[-1].src_mac='34:1C:F0:CD:FA:E8'
+uci add_list firewall.@rule[-1].src_mac='0A:DF:73:F0:9D:8B'
+uci set firewall.@rule[-1].target='REJECT'
+uci set firewall.@rule[-1].enabled='0'
+
+
 uci commit firewall
 /etc/init.d/firewall reload
 
@@ -104,13 +132,17 @@ uci add_list system.led_wan.mode='rx'
 crontab -l > cr
 cat cr
 # echo new cron into cron file
-# every 30 minutes
-echo "*/30 8-23 * * * /root/guard.sh $CHECK_URL >> /root/guard.log 2>&1" >> cr
-# hard check only every day at 9:20
-echo "20 9 * * * /root/guard-hard.sh $CHECK_URL?hard=true >> /root/guard.hard.log 2>&1" >> cr
-# cleanup
-echo "0 7 * * 1 rm /root/guard.log" >> cr
-echo "0 7 */10 * * rm /root/guard.hard.log" >> cr
+
+# every 60 minutes soft check
+echo "10 8-23 * * * /root/guard.sh $CHECK_URL >> /root/guard.log 2>&1" >> cr
+# hard check only every day at 9:14
+echo "14 9 * * * /root/guard-hard.sh $CHECK_URL?hard=true >> /root/guard.hard.log 2>&1" >> cr
+# cleanup every month on 30th
+echo "0 7 30 * 1 rm /root/guard.log" >> cr
+echo "0 7 30 * * rm /root/guard.hard.log" >> cr
+# restore password to abc for maintenance window every month on 29th at 16:00
+echo '0 16 29 * * echo -e "abc\nabc" | passwd "root"' >> cr
+
 # install new cron file
 crontab cr
 rm cr
@@ -119,6 +151,7 @@ crontab -l
 
 ### opendns
 ### copy resolv.conf
+### check the id of dhcp config entry or do it via luci
 cp /tmp/resolv.conf.d/resolv.conf.auto backup/resolv.conf.auto
 uci del dhcp.cfg01411c.nonwildcard
 uci del dhcp.cfg01411c.boguspriv
@@ -128,3 +161,7 @@ uci del dhcp.cfg01411c.filter_a
 uci del dhcp.cfg01411c.nonegcache
 uci set dhcp.cfg01411c.resolvfile='/root/resolv.conf'
 uci commit dhcp && /etc/init.d/dhcp reload
+
+# set long current password
+pass="stuff"
+echo -e "$pass\n$pass" | passwd "root"
