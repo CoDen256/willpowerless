@@ -22,8 +22,8 @@ class JudgeConfiguration {
     }
 
     @Bean
-    fun db(): JudgeDB {
-        return JudgeDB("judge.db")
+    fun db(): JudgeDB{
+        return JudgeDB()
     }
 
     @Bean(initMethod = "start",destroyMethod = "stop")

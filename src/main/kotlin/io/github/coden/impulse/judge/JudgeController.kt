@@ -53,11 +53,15 @@ class JudgeController(
                     .body(it)
             }
     }
-    val dateFormat = DateTimeFormatter.ofPattern("HH:mm:ss, on dd.MMMM yyyy")
+    val dateFormat = DateTimeFormatter.ofPattern("HH:mm:ss, 'on' dd.MMMM yyyy")
     private fun notifyNextLockdown(nextChange: LocalDateTime){
         val untilLockdown = Duration.between(LocalDateTime.now(), nextChange)
-        if (untilLockdown <= 2.2.days.toJavaDuration() && untilLockdown.isPositive && untilLockdown.toHoursPart() % 8 == 0){
+        println("Next lockdown is at ${nextChange.format(dateFormat)}, Remains: ${untilLockdown.toHours()} hours")
+        if (untilLockdown <= 2.2.days.toJavaDuration() && untilLockdown.isPositive && ((untilLockdown.toHoursPart()+1) % 8 == 0)){
             notifier.notify("⚠\uFE0F Warning! Next lockdown is at ${nextChange.format(dateFormat)}\nRemains: ${untilLockdown.toHours()} hours")
+        }
+        if (untilLockdown.toHoursPart() == 0){
+            notifier.notify("⛔ Internet disabled, rule violated, lockdown!")
         }
     }
 
