@@ -1,7 +1,14 @@
 package io.github.coden.impulse.judge
 
+import java.time.LocalDateTime
+
 interface Rule<I> {
     fun test(entity: I): Match
+}
+
+interface TimeDependentRule<I>: Rule<I>{
+    fun nextAllowed(entity: I): LocalDateTime
+    fun nextDisallowed(entity: I): LocalDateTime
 }
 
 data class Match(

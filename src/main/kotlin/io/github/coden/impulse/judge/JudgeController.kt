@@ -1,5 +1,8 @@
 package io.github.coden.impulse.judge
 
+import io.github.coden.impulse.judge.service.JudgeService
+import io.github.coden.impulse.judge.service.Verdict
+import io.github.coden.impulse.judge.telegram.Notifier
 import io.github.coden.wellpass.api.CheckIns
 import io.github.coden.wellpass.api.Wellpass
 import org.springframework.http.HttpStatus
@@ -10,29 +13,34 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.Executors
+import kotlin.time.Duration.Companion.days
+import kotlin.time.toJavaDuration
 
 @RestController
 class JudgeController(
-    private val wellpass: Wellpass,
+    private val notifier: Notifier,
+    private val service: JudgeService,
+    private val wellpass: Wellpass
 ) {
-    val rule: Rule<CheckIns> = WellpassRule()
+
+    val singleThreadExecutor = Executors.newSingleThreadExecutor()
 
     @GetMapping("/")
     fun index(): String {
         return "Hi."
     }
+
     @GetMapping("/check")
     fun check(@RequestParam(required = false, defaultValue = "false") hard: Boolean): Mono<ResponseEntity<Verdict>> {
-        return wellpass
-            .checkins(LocalDate.now().minusMonths(4), LocalDate.now())
-            .timeout(Duration.ofSeconds(60))
+        return service
+            .check(hard)
             .map {
-                val match = rule.test(it)
-                val innocent = match.allowed || hard
-                Verdict(!innocent, match.reason, it)
-            }
-            .map {
+                singleThreadExecutor.submit { notifyNextLockdown(it.nextChange) }
                 if (it.guilty){
                     ResponseEntity
                         .status(HttpStatus.FORBIDDEN)
@@ -45,6 +53,13 @@ class JudgeController(
                     .body(it)
             }
     }
+    val dateFormat = DateTimeFormatter.ofPattern("HH:mm:ss, on dd.MMMM yyyy")
+    private fun notifyNextLockdown(nextChange: LocalDateTime){
+        val untilLockdown = Duration.between(LocalDateTime.now(), nextChange)
+        if (untilLockdown <= 2.2.days.toJavaDuration() && untilLockdown.isPositive && untilLockdown.toHoursPart() % 8 == 0){
+            notifier.notify("⚠\uFE0F Warning! Next lockdown is at ${nextChange.format(dateFormat)}\nRemains: ${untilLockdown.toHours()} hours")
+        }
+    }
 
     @GetMapping("/wellpass")
     fun wellpass(): Mono<CheckIns> {
@@ -52,11 +67,4 @@ class JudgeController(
             .checkins(LocalDate.now())
             .timeout(Duration.ofSeconds(60))
     }
-
-
-    data class Verdict(
-        val guilty: Boolean,
-        val reason: String,
-        val evidence: Any?,
-    )
 }
