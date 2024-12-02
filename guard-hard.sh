@@ -7,6 +7,15 @@ if [ -z "$1" ]; then
     echo "Usage: $0 <URL>"
     exit 1
 fi
+
+wget --spider -q --timeout=60 "http://google.com"
+if [ $? -eq 0 ]; then
+  echo "We're online"
+else
+  echo "We're offline, ignoring outcome"
+  exit 1
+fi
+
 URL="$1"
 # Make HTTP request and check if the response is successful
 wget --spider --timeout=600 "$URL"
