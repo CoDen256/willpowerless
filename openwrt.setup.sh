@@ -109,7 +109,7 @@ source /etc/profile
 
 
 # use to disable/enable
-uci set firewall.$SOFT_ID.enabled='1'
+uci set firewall.$SOFT_ID.enabled='0'
 uci set firewall.$HARD_ID.enabled='0'
 uci commit firewall && /etc/init.d/firewall reload
 
@@ -119,6 +119,7 @@ uci commit firewall && /etc/init.d/firewall reload
 chmod +x /root/guard.sh
 chmod +x /root/guard-hard.sh
 chmod +x /root/led.sh
+chmod +x /root/task-executor.sh
 
 
 #### disable existing led green for wan
@@ -129,23 +130,22 @@ uci add_list system.led_wan.mode='tx'
 uci add_list system.led_wan.mode='rx'
 
 ### setup and add cron tab for checking judge
-crontab -l > cr
-cat cr
+crontab -l > cron
+cat cron
 # echo new cron into cron file
 
 # every 60 minutes soft check
-echo "10 8-23 * * * /root/guard.sh $CHECK_URL >> /root/guard.log 2>&1" >> cr
+echo "10 8-23 * * * /root/guard.sh $CHECK_URL >> /root/guard.log 2>&1" >> cron
 # hard check only every day at 9:14
-echo "14 9 * * * /root/guard-hard.sh $CHECK_URL?hard=true >> /root/guard.hard.log 2>&1" >> cr
+echo "14 9 * * * /root/guard-hard.sh $CHECK_URL?hard=true >> /root/guard.hard.log 2>&1" >> cron
 # cleanup every month on 30th
-echo "0 7 30 * 1 rm /root/guard.log" >> cr
-echo "0 7 30 * * rm /root/guard.hard.log" >> cr
+echo "0 7 30 * 1 rm /root/guard.log" >> cron
+echo "0 7 30 * * rm /root/guard.hard.log" >> cron
 # restore password to abc for maintenance window every month on 29th at 16:00
-echo '0 16 29 * * echo -e "abc\nabc" | passwd "root"' >> cr
-
+echo '0 16 29 * * echo -e "abc\nabc" | passwd "root"' >> cron
+echo '*/1 * * * * /root/task-executor.sh >> /root/task.log 2>&1'
 # install new cron file
-crontab cr
-rm cr
+crontab cron
 crontab -l
 
 
@@ -165,3 +165,26 @@ uci commit dhcp && /etc/init.d/dhcp reload
 # set long current password
 pass="stuff"
 echo -e "$pass\n$pass" | passwd "root"
+echo "$pass" | sha256sum | tee hash
+
+
+# user setup
+opkg update
+opkg install shadow-useradd
+opkg install shadow-usermod
+opkg install shadow-userdel
+
+mkdir /home/diagnostics
+
+# or verify that the /etc/passwd contains /bin/ash as the last column
+useradd -r -s /bin/ash -d /home/diagnostics diagnostics
+echo -e "abc\nabc" | passwd "diagnostics"
+
+# or verify thath the /etc/group contains
+cat /etc/passwd
+cat /etc/group
+cat /etc/shadow
+
+# setup the logs permissions, to able to view logs
+chmod 666 /root/guard.log
+chmod 666 /root/guard.hard.log
