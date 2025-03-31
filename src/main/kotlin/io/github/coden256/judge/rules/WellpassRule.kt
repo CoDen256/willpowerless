@@ -1,25 +1,26 @@
 package io.github.coden256.judge.rules
 
 import io.github.coden.wellpass.api.CheckIn
+import io.github.coden.wellpass.api.CheckIns
 import io.github.coden256.judge.api.Match
 import io.github.coden256.judge.api.Match.Companion.asMatch
 import io.github.coden256.judge.api.Rule
-import io.github.coden.wellpass.api.CheckIns
-import java.time.Duration
 import java.time.LocalDateTime
+import kotlin.time.Duration.Companion.days
+import kotlin.time.toJavaDuration
 
 class WellpassRule : Rule<CheckIns> {
 
-    private val chillDuration = Duration.ofDays(5)
+    private val chillDuration = 5.days
 
     override fun test(entity: CheckIns): Match {
         val checkIns = entity.checkIns
         val last = checkIns.maxByOrNull { it.checkInDate }
         return checkIns
             .filter { filterGyms(it) }
-            .any { it.checkInDate.isAfter(LocalDateTime.now().minus(chillDuration)) }
+            .any { it.checkInDate.isAfter(LocalDateTime.now().minus(chillDuration.toJavaDuration())) }
             .asMatch()
-            .onFail("❌ Last checkin was more than ${chillDuration} ago:  ${last?.name} on ${last?.checkInDate}")
+            .onFail("⛔ Last checkin was more than ${chillDuration} ago:  ${last?.name} on ${last?.checkInDate}")
             .onSuccess("✅ Gym alright")
     }
 

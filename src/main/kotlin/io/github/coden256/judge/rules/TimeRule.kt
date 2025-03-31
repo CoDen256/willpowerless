@@ -28,21 +28,21 @@ class TimeRule: Rule<LocalDateTime> {
         val time = it.toLocalTime()
          (!time.isBefore(workTimeFrom) && !time.isAfter(workTimeTo))
              .asMatch()
-             .onFail("❌ Not a work time ($workTimeFrom-$workTimeTo)")
+             .onFail("⛔ Not a work time ($workTimeFrom-$workTimeTo)")
              .onSuccess("✅ Work time ($workTimeTo-$workTimeFrom)")
     }
 
     private fun isWorkDay() = Rule<LocalDateTime> {
         (it.dayOfWeek in homeWorkDays)
             .asMatch()
-            .onFail("❌ Not a home office work day $homeWorkDays")
+            .onFail("⛔ Not a home office work day $homeWorkDays")
             .onSuccess("✅ Home office work day $homeWorkDays")
     }
 
     private fun isScheduled() = Rule<LocalDateTime> {
         (it.dayOfWeek in schedule)
             .asMatch()
-            .onFail("❌ Not in schedule $schedule")
+            .onFail("⛔ Not in schedule $schedule")
             .onSuccess("✅ In schedule $schedule")
     }
 }

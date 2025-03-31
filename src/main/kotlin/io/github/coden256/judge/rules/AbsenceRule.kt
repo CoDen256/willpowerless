@@ -24,7 +24,7 @@ class AbsenceRule: Rule<List<Absence>> {
         return now
             .isBefore(latestAbsence.end.plus(extra.toJavaDuration()))
             .asMatch()
-            .onFail("❌ Is not sick or on vacation: ${latestAbsence.end} + $extra")
+            .onFail("⛔ Is not sick or on vacation: ${latestAbsence.end} + $extra")
             .onSuccess("✅ Is sick or on vacation: ${latestAbsence.end} + $extra")
     }
 

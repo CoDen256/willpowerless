@@ -8,7 +8,7 @@ class HardCheckRule: Rule<Boolean> {
     override fun test(isHardCheck: Boolean): Match {
         return (isHardCheck)
             .asMatch()
-            .onFail("❌ Not hard check")
+            .onFail("⛔ Not hard check")
             .onSuccess("✅ Hard check")
     }
 }
