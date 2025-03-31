@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>impulse-judge-service</artifactId>
-    <version>4.0-absence-sched</version>
+    <version>4.1-sickdays</version>
 
     <dependencies>
         <dependency>

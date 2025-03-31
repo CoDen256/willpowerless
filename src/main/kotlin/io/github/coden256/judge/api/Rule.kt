@@ -19,15 +19,33 @@ data class Match(
     val reason: String,
 ) {
     infix fun and(other: Match): Match {
-        return Match(allowed && other.allowed, "("+reason+" && "+other.reason+")")
+        return and(*arrayOf(other))
     }
+    fun and(vararg other: Match): Match {
+        val total = arrayOf(this).plus(other)
+        return Match(total.all { it.allowed }, total.joinToString(" & ", "(", ")"){ it.reason })
+    }
+
     infix fun or(other: Match): Match {
-        return Match(allowed || other.allowed, "("+reason+" || "+other.reason+")")
+        return or(*arrayOf(other))
+    }
+
+    fun or(vararg other: Match): Match {
+        val total = arrayOf(this).plus(other)
+        return Match(total.any { it.allowed }, total.joinToString(" | ", "(", ")") { it.reason })
+    }
+
+    fun onFail(msg: String): Match{
+        return Match(allowed, if (allowed) reason else msg)
+    }
+
+    fun onSuccess(msg: String): Match{
+        return Match(allowed, if (allowed) msg else reason)
     }
 
     companion object {
-        fun Boolean.asMatch(ifFailed: String, ifAllowed: String = "ok"): Match {
-            return Match(this, if (this) ifAllowed else ifFailed)
+        fun Boolean.asMatch(): Match {
+            return Match(this, if (this) "bad" else "ok")
         }
     }
 }

@@ -1,14 +1,11 @@
 package io.github.coden256.judge
 
 import io.github.coden256.judge.api.Rule
-import io.github.coden256.judge.rules.AbsenceRule
-import io.github.coden256.judge.rules.HardCheckRule
-import io.github.coden256.judge.rules.TimeRule
-import io.github.coden256.judge.rules.WellpassRule
 import io.github.coden.wellpass.api.CheckIns
 import io.github.coden.wellpass.api.Wellpass
 import io.github.coden256.calendar.api.Calendar
 import io.github.coden256.calendar.api.Absence
+import io.github.coden256.judge.rules.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -16,19 +13,21 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
+import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.time.Duration.Companion.hours
 
 @RestController
 class JudgeController(
     private val wellpass: Wellpass,
     private val calendar: Calendar
 ) {
-    val wellpassRule: Rule<CheckIns> = WellpassRule()
-    val timeRule: Rule<LocalDateTime> = TimeRule()
-    val absenceRule: Rule<List<Absence>> = AbsenceRule()
-    val hardRule: Rule<Boolean> = HardCheckRule()
+    val isGymVisited: Rule<CheckIns> = WellpassRule()
+    val isWithinSchedule: Rule<LocalDateTime> = TimeRule()
+    val isSickOrVacation: Rule<List<Absence>> = AbsenceRule()
+    val isHardCheck: Rule<Boolean> = HardCheckRule()
 
     @GetMapping("/")
     fun index(): String {
@@ -41,14 +40,10 @@ class JudgeController(
             .checkins(LocalDate.now().minusMonths(4), LocalDate.now())
             .timeout(Duration.ofSeconds(60))
             .map {
-                val absences = try {
-                    calendar.absences()
-                } catch (e: Exception) {
-                    emptyList()
-                }
-                val match = (wellpassRule(it).and(timeRule(LocalDateTime.now())))
-                    .or(absenceRule(absences))
-                    .or(hardRule(hard))
+
+                val match = (isGymVisited(it).and(isWithinSchedule(LocalDateTime.now())))
+                    .or(isSickOrVacation(getLongAbsences()), isHardCheck(hard))
+
                 Verdict(
                     match.allowed,
                     match.reason,
@@ -77,7 +72,25 @@ class JudgeController(
 
     @GetMapping("/absence")
     fun absence(): Mono<List<Absence>> {
-        return Mono.fromSupplier { calendar.absences() }
+        return Mono.fromSupplier { getLongAbsences() }
+    }
+
+    private fun getLongAbsences(): List<Absence> {
+        return try {
+            calendar.absences()
+                .filter { it.start.isBefore(LocalDateTime.now()) }
+                .filter { it.duration() >= 23.9.hours }
+                .map {
+                    when (it.end.dayOfWeek) {
+                        DayOfWeek.THURSDAY -> it.copy(end = it.end.plusDays(3))
+                        DayOfWeek.FRIDAY -> it.copy(end = it.end.plusDays(2))
+                        DayOfWeek.SATURDAY -> it.copy(end = it.end.plusDays(1))
+                        else -> it
+                    }
+                }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     data class Verdict(
