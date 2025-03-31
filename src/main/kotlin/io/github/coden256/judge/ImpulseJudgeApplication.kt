@@ -1,4 +1,4 @@
-package io.github.coden.impulse.judge
+package io.github.coden256.judge
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

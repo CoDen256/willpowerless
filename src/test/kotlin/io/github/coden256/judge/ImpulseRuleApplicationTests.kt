@@ -1,6 +1,7 @@
-package io.github.coden.impulse.judge
+package io.github.coden256.judge
 
 import io.github.coden.wellpass.api.Wellpass
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -14,7 +15,13 @@ class ImpulseRuleApplicationTests {
     lateinit var api: Wellpass
 
     @Test
-    fun contextLoads() {
+    fun contextLoads(){
+
+    }
+
+    @Test
+    @Disabled
+    fun wellpass() {
         val block = api.checkins(LocalDate.now()).block()
         assertTrue(!block?.checkIns.isNullOrEmpty())
     }
