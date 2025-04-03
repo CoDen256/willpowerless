@@ -1,7 +1,3 @@
-# Witnesses
-Wellpass Witness
-* verify the visited places
-
 # Judges
 Judge Service: 
 * /check - 200 if action is allowed
