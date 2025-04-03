@@ -11,7 +11,7 @@
 
     <groupId>io.github.coden256.wpl</groupId>
     <artifactId>willpowerless-judge-svc</artifactId>
-    <version>4.1-sickdays</version>
+    <version>5.0-firewall</version>
 
     <dependencies>
         <dependency>
