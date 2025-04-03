@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>./judge</module>
+        <module>judge-svc</module>
+        <module>judge-bot</module>
     </modules>
 </project>

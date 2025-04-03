@@ -1,13 +1,16 @@
-# Judges
+# Judge
 Judge Service: 
 * /check - 200 if action is allowed
 * aggregates the responses of witnesses by rules
 * Rules
-  * every 1 week at least one visit
-  * deny a start of a week for the previous week
-* deployed on a platform
-* Hide: 
-  * Platform password
+  * gym visit in last 5 days
+  * or sick/on vacation
+  * or within schedule
+* deployed on a separatly from other projects free, easy-to-manage, hardly accessible platform
+  * https://render.com
+  * https://railway.com
+* Accessible by:
+  * Regulator Google Account
 
 # Executors:
 1. Master ISP Router (Vodafone Station)
@@ -50,6 +53,8 @@ Judge Service:
   * Web Interface Password
 * Cron job to check the judge, if not drop packets for everyone on the network
 
+3. Guard App
+
 ## Setup
 * [guard.sh](./guard.sh) containing the checker
 
@@ -58,28 +63,22 @@ Judge Service:
 
 
     */5 * * * * /guard.sh http://judge.service/check
-    crontab -l # verify
 
 * Disable factory reset button
 
 
     echo "" > /etc/rc.button/reset 
 
-Conclusion
+Extra setup
+* Additional Google account for keeping all the hidden passwords
 
+# Conclusion
 * give: 
   * Vodafone Station WiFi current password
   * Vodafone Station Admin access current password
 
 * hide:
-  * Password manager password
-  * Google account password
-  * Platform password
+  * Regulator Google account password
   * OpenWRT Web Interface Password
   * Vodafone Station WiFi factory password
   * Vodafone Station Admin factory password
-
-
-Extra setup
-* Additional Google account for keeping all the hidden passwords
-* Password manager for the account with single password hidden locally 
