@@ -3,15 +3,95 @@
 local json = require("luci.json")
 local io = require("io")
 
-local endpoint = "http://willpowerless-judge.up.railway.app/firewall/rules"
+local PROPERTIES = {"name", "dest", "target", "enabled", "family", "proto"}  -- Single-value properties
+local LIST_PROPERTIES = {"src_mac", "src_ip", "dest_ip", "dest_mac", "src_port", "dest_port"}  -- List properties
 
-local formatted_time = os.date("%Y-%m-%d %H:%M:%S")  -- ISO 8601 format
+-- ======================
+-- HTTP Fetch (using curl)
+-- ======================
+local function fetch_json(url)
+    local handle = io.popen(string.format("curl -s -f -L '%s'", url:gsub("'", "'\\''")))
+    local response = handle:read("*a")
+    handle:close()
+    return response
+end
+-- require("socket.http").request("http://willpowerless-judge.up.railway.app/firewall/rules")
+-- require("luci.httpclient").request_to_buffer("https://willpowerless-judge.up.railway.app/firewall/rules")
+
+-- ======================
+-- Create and verify json
+-- ======================
+local function create_verify_json(json_data)
+    local ok, data = pcall(json.decode, json_data)
+    if not ok or type(data) ~= "table" then
+        return nil, "Invalid JSON"
+    end
+    return data
+end
+
+-- ======================
+-- Parse JSON & Build UCI Commands
+-- ======================
+local function process_rules(data)
+    local commands = {}
+
+    for i = 0, 8 do  -- Process rules 0-8
+        local rule = data[tostring(i)]
+        if not rule then break end
+
+        local uci_prefix = string.format("firewall.@rule[%d].", -1 - i)
+        print("Processing " .. tostring(i) .. " = " .. uci_prefix)
+
+        -- Process non-list properties
+        for _, key in ipairs(PROPERTIES) do
+            if rule[key] and type(rule[key]) ~= "table" then
+                table.insert(commands, string.format(
+                        "uci set %s%s='%s'",
+                        uci_prefix, key,
+                        tostring(rule[key]):gsub("'", "'\\''")
+                ))
+            end
+        end
+
+        -- Process list properties
+        for _, key in ipairs(LIST_PROPERTIES) do
+            if rule[key] and type(rule[key]) == "table" then
+                table.insert(commands, string.format(
+                        "uci del %s%s 2>/dev/null", uci_prefix, key
+                ))
+                for _, val in ipairs(rule[key]) do
+                    if val and val ~= "" then
+                        table.insert(commands, string.format(
+                                "uci add_list %s%s='%s'",
+                                uci_prefix, key,
+                                val:gsub("'", "'\\''")
+                        ))
+                    end
+                end
+            end
+        end
+    end
+
+    -- Final commit if we made changes
+    if #commands > 0 then
+        table.insert(commands, "uci commit firewall")
+        table.insert(commands, "/etc/init.d/firewall reload")
+    end
+
+    return commands
+end
+
+
+-- ======================
+-- Main Execution
+-- ======================
+
+local formatted_time = os.date("%Y-%m-%d %H:%M:%S")
+
+local endpoint = "http://willpowerless-judge.up.railway.app/firewall/rules"
 print("\n\n" .. formatted_time .. " - running " .. endpoint)
 
--- Fetch JSON from endpoint
-local handle = io.popen(string.format("curl -s -f -L '%s'", endpoint:gsub("'", "'\\''")))
-local response = handle:read("*a")
-handle:close()
+local response = fetch_json(endpoint)
 
 if not response or response == "" then
     io.stderr:write("HTTP request failed\n")
@@ -19,51 +99,28 @@ if not response or response == "" then
 end
 print("Successfully requested")
 
--- Parse JSON
-local ok, data = pcall(json.decode, response)
-if not ok or type(data) ~= "table" then
-    io.stderr:write("Invalid JSON response\n")
+local data, err = create_verify_json(response)
+if not data then
+    io.stderr:write("Error when verifying json: " .. err .. "\n")
     os.exit(1)
 end
-print("Successfully parsed")
+print("Successfully verified json")
 
--- Process each rule (0-8)
-for i = 0, 8 do
-    local rule_key = tostring(i)
-    print("\nParsing " .. rule_key .. " rule")
-    local rule = data[rule_key]
-    if not rule then break end  -- Stop if no more rules
-
-    local uci_index = -1 - i  -- Converts "0" to -1, "1" to -2, etc.
-    local uci_prefix = "firewall.@rule[" .. uci_index .. "]."
-    print(uci_prefix)
-
-    ---- Set simple key-value pairs (name, dest, target, enabled)
-    --for _, key in ipairs({"name", "dest", "target", "enabled"}) do
-    --    if rule[key] then
-    --        os.execute(string.format(
-    --                "uci set %s%s='%s'",
-    --                uci_prefix,
-    --                key,
-    --                rule[key]:gsub("'", "'\\''")  -- Escape single quotes
-    --        ))
-    --    end
-    --end
-    --
-    ---- Handle lists (e.g., src_mac)
-    --if rule.src_mac and type(rule.src_mac) == "table" then
-    --    os.execute("uci del " .. uci_prefix .. "src_mac 2>/dev/null")  -- Clear existing
-    --    for _, mac in ipairs(rule.src_mac) do
-    --        os.execute(string.format(
-    --                "uci add_list %ssrc_mac='%s'",
-    --                uci_prefix,
-    --                mac:gsub("'", "'\\''")
-    --        ))
-    --    end
-    --end
+local commands, err = process_rules(data)
+if not commands then
+    io.stderr:write("Error: " .. err .. "\n")
+    os.exit(1)
 end
+print("Successfully processed")
 
--- Commit and reload
---os.execute("uci commit firewall && /etc/init.d/firewall reload")
+
+for _, cmd in ipairs(commands) do
+    print("Executing '" .. cmd .. "'")
+end
+-- Execute all commands sequentially
+--for _, cmd in ipairs(commands) do
+--    --os.execute(cmd)
+--end
+
 print("Firewall rules updated successfully")
 os.exit(0)

@@ -6,7 +6,7 @@ opkg update
 opkg install shadow-useradd
 opkg install shadow-usermod
 opkg install shadow-userdel
-opkg install lua luci-lib-httpclient luci-lib-json
+opkg install lua luci-lib-json luasocket luasec
 ####
 # Luci -> wifi -> enable radio1 -> set password
 # System -> general settings -> timezone
