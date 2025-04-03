@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.coden256</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>io.github.coden256.wpl</groupId>
+    <artifactId>willpowerless-judge-bot</artifactId>
+    <version>1.0</version>
+
+    <properties>
+        <mainClass>io.github.coden256.wpl.judge.WillpowerlessJudgeKt</mainClass>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.coden256.lib</groupId>
+            <artifactId>telegram</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sksamuel.hoplite</groupId>
+            <artifactId>hoplite-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jsoizo</groupId>
+            <artifactId>kotlin-csv-jvm</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.skebir</groupId>
+            <artifactId>prettytable</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Compile to executable jar, with all dependencies  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+            </plugin>
+            <!-- Build and publish docker image  -->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
