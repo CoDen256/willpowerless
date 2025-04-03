@@ -1,10 +1,10 @@
-package io.github.coden256.judge.rules
+package io.github.coden256.wpl.judge.rules
 
-import io.github.coden.wellpass.api.CheckIn
-import io.github.coden.wellpass.api.CheckIns
-import io.github.coden256.judge.api.Match
-import io.github.coden256.judge.api.Match.Companion.asMatch
-import io.github.coden256.judge.api.Rule
+import io.github.coden256.wellpass.api.CheckIn
+import io.github.coden256.wellpass.api.CheckIns
+import io.github.coden256.wpl.judge.api.Match
+import io.github.coden256.wpl.judge.api.Match.Companion.asMatch
+import io.github.coden256.wpl.judge.api.Rule
 import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.days
 import kotlin.time.toJavaDuration

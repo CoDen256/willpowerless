@@ -1,8 +1,8 @@
-package io.github.coden256.judge
+package io.github.coden256.wpl.judge
 
-import io.github.coden.wellpass.api.CheckIn
-import io.github.coden.wellpass.api.CheckIns
-import io.github.coden256.judge.rules.WellpassRule
+import io.github.coden256.wellpass.api.CheckIn
+import io.github.coden256.wellpass.api.CheckIns
+import io.github.coden256.wpl.judge.rules.WellpassRule
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime

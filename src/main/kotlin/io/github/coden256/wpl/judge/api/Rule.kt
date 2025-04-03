@@ -1,4 +1,4 @@
-package io.github.coden256.judge.api
+package io.github.coden256.wpl.judge.api
 
 fun interface Rule<I>: (I) -> Match {
     override fun invoke(entity: I): Match = test(entity)
@@ -35,11 +35,11 @@ data class Match(
         return Match(total.any { it.allowed }, total.joinToString(" | ", "(", ")") { it.reason })
     }
 
-    fun onFail(msg: String): Match{
+    fun onFail(msg: String): Match {
         return Match(allowed, if (allowed) reason else msg)
     }
 
-    fun onSuccess(msg: String): Match{
+    fun onSuccess(msg: String): Match {
         return Match(allowed, if (allowed) msg else reason)
     }
 

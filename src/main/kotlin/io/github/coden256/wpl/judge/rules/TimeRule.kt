@@ -1,8 +1,8 @@
-package io.github.coden256.judge.rules
+package io.github.coden256.wpl.judge.rules
 
-import io.github.coden256.judge.api.Match
-import io.github.coden256.judge.api.Match.Companion.asMatch
-import io.github.coden256.judge.api.Rule
+import io.github.coden256.wpl.judge.api.Match
+import io.github.coden256.wpl.judge.api.Match.Companion.asMatch
+import io.github.coden256.wpl.judge.api.Rule
 import java.time.DayOfWeek.*
 import java.time.LocalDateTime
 import java.time.LocalTime

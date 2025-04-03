@@ -1,9 +1,9 @@
-package io.github.coden256.judge.rules
+package io.github.coden256.wpl.judge.rules
 
 import io.github.coden256.calendar.api.Absence
-import io.github.coden256.judge.api.Match
-import io.github.coden256.judge.api.Match.Companion.asMatch
-import io.github.coden256.judge.api.Rule
+import io.github.coden256.wpl.judge.api.Match
+import io.github.coden256.wpl.judge.api.Match.Companion.asMatch
+import io.github.coden256.wpl.judge.api.Rule
 import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.days

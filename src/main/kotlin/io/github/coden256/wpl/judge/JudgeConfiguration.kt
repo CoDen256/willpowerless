@@ -1,6 +1,6 @@
-package io.github.coden256.judge
+package io.github.coden256.wpl.judge
 
-import io.github.coden.wellpass.api.config.WellpassConfiguration
+import io.github.coden256.wellpass.api.config.WellpassConfiguration
 import io.github.coden256.calendar.api.Calendar
 import io.github.coden256.calendar.ICSCalendar
 import org.springframework.beans.factory.annotation.Value

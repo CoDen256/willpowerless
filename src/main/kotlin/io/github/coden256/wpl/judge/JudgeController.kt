@@ -1,11 +1,15 @@
-package io.github.coden256.judge
+package io.github.coden256.wpl.judge
 
-import io.github.coden256.judge.api.Rule
-import io.github.coden.wellpass.api.CheckIns
-import io.github.coden.wellpass.api.Wellpass
+import io.github.coden256.wpl.judge.api.Rule
+import io.github.coden256.wellpass.api.CheckIns
+import io.github.coden256.wellpass.api.Wellpass
 import io.github.coden256.calendar.api.Calendar
 import io.github.coden256.calendar.api.Absence
-import io.github.coden256.judge.rules.*
+import io.github.coden256.wpl.judge.rules.*
+import io.github.coden256.wpl.judge.rules.AbsenceRule
+import io.github.coden256.wpl.judge.rules.HardCheckRule
+import io.github.coden256.wpl.judge.rules.TimeRule
+import io.github.coden256.wpl.judge.rules.WellpassRule
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
