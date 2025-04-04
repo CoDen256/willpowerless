@@ -15,8 +15,7 @@ local function fetch_json(url)
     handle:close()
     return response
 end
--- require("socket.http").request("http://willpowerless-judge.up.railway.app/firewall/rules")
--- require("luci.httpclient").request_to_buffer("https://willpowerless-judge.up.railway.app/firewall/rules")
+-- b, c = require("socket.http").request("http://willpowerless-judge.up.railway.app/firewall/rules")
 
 -- ======================
 -- Create and verify json
