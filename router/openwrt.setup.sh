@@ -20,6 +20,9 @@ mkdir /root/log
 ./firewall/rule-touch-grass.sh
 ./firewall/rule-touch-grass-beamer.sh
 
+### DNS
+./setup/dns.sh
+
 ### Add judge scripts and endpoint value to /etc/judge
 ./scripts/endpoint.sh
 ./scripts/enable.sh
@@ -27,10 +30,12 @@ mkdir /root/log
 ./scripts/led.sh
 ./scripts/executor.sh
 
-
 ### Access setup
 ./setup/access # create proper password for root and save it
+./setup/diagnostics.sh # add diagnostics user
 
+# Cron
+./setup/cron.sh
 
 # add extra scripts to /etc/
 ./scripts/clients.sh
