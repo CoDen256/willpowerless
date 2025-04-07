@@ -13,3 +13,20 @@ uci del dhcp.cfg01411c.filter_a
 uci del dhcp.cfg01411c.nonegcache
 uci set dhcp.cfg01411c.resolvfile='/root/resolv.conf'
 uci commit dhcp && /etc/init.d/dhcp reload
+
+
+cat << "EOF" > /root/resolv.conf
+
+nameserver 208.67.222.123
+nameserver 208.67.220.123
+
+# or
+# 208.67.222.222
+# 208.67.220.220
+
+
+# default
+# nameserver 8.8.8.8
+# nameserver 8.8.4.4
+
+EOF

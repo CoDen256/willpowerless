@@ -26,12 +26,11 @@ mkdir /root/log
 ### Add judge scripts and endpoint value to /etc/judge
 ./scripts/endpoint.sh
 ./scripts/enable.sh
+./scripts/led.lua.sh
 ./scripts/guard.lua.sh
-./scripts/led.sh
-./scripts/executor.sh
 
 ### Access setup
-./setup/access # create proper password for root and save it
+./setup/access.sh # create proper password for root and save it
 ./setup/diagnostics.sh # add diagnostics user
 
 # Cron
