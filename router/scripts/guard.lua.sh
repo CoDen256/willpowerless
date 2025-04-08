@@ -64,11 +64,3 @@ chmod 774 /etc/judge/guard.lua
 wget https://github.com/CoDen256/willpowerless/raw/refs/heads/master/router/scripts/guard -P /etc/judge/ -O guard
 chmod 775 /etc/judge/guard
 chmod u+s /etc/judge/guard
-
-# for some stupid reason i can't still reload firewall from the diagnostics user
-# probably the nft tables are user specific or whatever
-# but for now just rebooting works
-# but i need a u+s bit on reboot, and the default one is just symlink to busybox
-wget https://github.com/CoDen256/willpowerless/raw/refs/heads/master/router/scripts/reboot -P /etc/judge/ -O guard
-chmod 775 /etc/judge/reboot
-chmod u+s /etc/judge/reboot
