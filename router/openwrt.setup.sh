@@ -15,9 +15,6 @@ mkdir /root/log
 # Luci -> wifi -> enable radio1 -> set password
 # System -> general settings -> timezone
 
-### disable buttons to avoid resetting to factory mode
-./setup/disable-buttons.sh
-
 ### Apply rules
 ./firewall/rule-touch-grass.sh
 ./firewall/rule-touch-grass-beamer.sh
@@ -28,15 +25,18 @@ mkdir /root/log
 ### Add judge scripts and endpoint value to /etc/judge
 ./scripts/endpoint.sh
 ./scripts/enable.sh
-./scripts/led.lua.sh
 ./scripts/guard.lua.sh
 
 ### Access setup
 ./setup/access.sh # create proper password for root and save it
 ./setup/diagnostics.sh # add diagnostics user
 
+### disable buttons to avoid resetting to factory mode
+./setup/disable-buttons.sh
+
 # Cron
 ./setup/cron.sh
 
 # add extra scripts to /etc/
+./scripts/led.lua.sh
 ./scripts/clients.sh

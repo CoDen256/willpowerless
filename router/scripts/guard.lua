@@ -3,6 +3,10 @@
 local http = require("socket.http")
 local io = require("io")
 
+function trim(s)
+    return (string.gsub(s, "^%s*(.-)%s*$", "%1"))
+end
+
 local function read_file_to_string(file_path)
     local file = io.open(file_path, "r")  -- Open in read mode
     if not file then
@@ -11,7 +15,7 @@ local function read_file_to_string(file_path)
 
     local content = file:read("*a")  -- Read all content
     file:close()
-    return content
+    return tostring(content)
 end
 
 local function enable_rule(rule, enable)
@@ -23,11 +27,11 @@ local function set_led(value)
 end
 
 local function get_endpoint()
-    return read_file_to_string("/etc/judge/endpoint")
+    return trim(read_file_to_string("/etc/judge/endpoint"))
 end
 
 local function get_verdict(url)
-    local body, code, headers = http.request(url)
+    local body, code, headers = http.request(tostring(url))
     if (not tonumber(code) or tonumber(code)  > 399) then
         print("Error when requesting verdict: " .. code .. "\n" .. body)
         return false

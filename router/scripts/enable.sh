@@ -3,7 +3,6 @@
 # usage: /etc/judge/enable TOUCH_GRASS_ID 0
 
 cat << "EOF" > /etc/judge/enable
-
 #!/bin/sh -l
 
 if [ $# -lt 2 ]; then

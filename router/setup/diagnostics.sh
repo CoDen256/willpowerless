@@ -15,6 +15,3 @@ chmod u-s /bin/busybox # DISABLE setuid BIT. IF diagnostics runs /bin/busybox, t
 cat /etc/passwd
 cat /etc/group
 cat /etc/shadow
-
-# setup the logs permissions, to able to view logs
-chmod 666 /root/log/guard.log

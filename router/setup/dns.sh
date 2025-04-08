@@ -30,3 +30,5 @@ nameserver 208.67.220.123
 # nameserver 8.8.4.4
 
 EOF
+
+chmod 664 /root/resolv.conf
