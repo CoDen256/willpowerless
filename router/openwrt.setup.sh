@@ -6,6 +6,8 @@ opkg update
 
 opkg install shadow-useradd shadow-usermod shadow-userdel
 opkg install lua luci-lib-json luasocket luasec
+opkg install file # to check system arch
+
 mkdir /root/backup
 mkdir /root/log
 

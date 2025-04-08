@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-cat << "EOF" > /etc/judge/guard
+cat << "EOF" > /etc/judge/guard.lua
 #!/usr/bin/lua
 
 local http = require("socket.http")
@@ -58,5 +58,8 @@ else
 end
 
 EOF
+chmod 774 /etc/judge/guard.lua
+
+# compile guard-wrapper and put it here
 chmod +x /etc/judge/guard
 chmod u+s /etc/judge/guard
