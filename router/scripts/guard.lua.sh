@@ -61,5 +61,6 @@ EOF
 chmod 774 /etc/judge/guard.lua
 
 # compile guard-wrapper and put it here
-chmod +x /etc/judge/guard
+wget https://github.com/CoDen256/willpowerless/raw/refs/heads/master/router/scripts/guard -P /etc/judge/ -O guard
+chmod 775 /etc/judge/guard
 chmod u+s /etc/judge/guard

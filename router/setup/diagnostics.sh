@@ -17,5 +17,4 @@ cat /etc/group
 cat /etc/shadow
 
 # setup the logs permissions, to able to view logs
-chmod 666 /root/guard.log
-chmod 666 /root/guard.hard.log
+chmod 666 /root/log/guard.log

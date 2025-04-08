@@ -6,6 +6,6 @@
 int main(int argc, char** argv) {
     setuid( 0 );
     printf("Running as %d\n", geteuid());
-    system( "/etc/judge/guard.lua" );
+    system( "reboot" );
     return 0;
 }
