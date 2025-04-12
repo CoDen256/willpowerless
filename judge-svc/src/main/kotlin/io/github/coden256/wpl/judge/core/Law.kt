@@ -20,7 +20,7 @@ data class LawRuling(
     val path: String,
     val action: Ruling,
 ) {
-    fun withReason(reason: String): LawRuling{
-        return LawRuling(path, Ruling(action.action, action.reason + reason ))
+    fun withReason(prefix: String, reason: String): LawRuling{
+        return LawRuling(path, Ruling(action.action, prefix + action.reason + reason ))
     }
 }

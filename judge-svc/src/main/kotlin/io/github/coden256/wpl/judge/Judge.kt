@@ -1,6 +1,5 @@
 package io.github.coden256.wpl.judge
 
-import io.github.coden256.wpl.judge.core.Action
 import io.github.coden256.wpl.judge.core.Law
 import io.github.coden256.wpl.judge.core.RulingTree
 import io.github.coden256.wpl.judge.core.Verdict
@@ -32,17 +31,20 @@ class LawAggregatingJudge(
                     return@forEach
                 }
                 verdict.rulings.forEach {
-                    val marker = when (it.action.action) {
-                        Action.BLOCK -> "⛔"
-                        Action.ALLOW -> "\uD83D\uDFE1"
-                        Action.FORCE -> "✅"
-                    }
-                    val new = it.withReason("-> ${verdict.law} -> $marker ${verdict.reason}")
+                    val new = it.withReason(getMarker(verdict.law) + " "," -> ${verdict.law} -> ${verdict.reason}")
                     logger.info { "[${verdict.law}]: $new" }
                     root.add(new.path, new.action)
                 }
             }
             root
+        }
+    }
+    fun getMarker(law: String): String {
+        return when  {
+            law.startsWith("force") -> "⛔"
+            law.startsWith("moderate")-> "\uD83D\uDFE1"
+            law.startsWith("allow")-> "✅"
+            else -> ""
         }
     }
 }
