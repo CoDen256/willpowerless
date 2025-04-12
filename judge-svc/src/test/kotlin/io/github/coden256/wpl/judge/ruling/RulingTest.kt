@@ -1,11 +1,9 @@
 package io.github.coden256.wpl.judge.ruling
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.coden256.utils.read
-import org.junit.jupiter.api.Assertions.*
-import  io.github.coden256.wpl.judge.ruling.Action.*
-
+import io.github.coden256.wpl.judge.ruling.Action.BLOCK
+import io.github.coden256.wpl.judge.ruling.Action.FORCE
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class RulingTest {
@@ -27,6 +25,21 @@ class RulingTest {
         assertEquals(
             mapper.readTree("""{"dev": {"ruling": {"action":"FORCE"}, "0": {"ruling": {"action":"BLOCK"}}}}"""),
             root.json()
+        )
+
+        assertEquals(
+            mapper.readTree("""{"ruling": {"action":"FORCE"}, "0": {"ruling": {"action":"BLOCK"}}}"""),
+            root.get("/dev")
+        )
+
+        assertEquals(
+            mapper.readTree("""{"action":"FORCE"}"""),
+            root.get("/dev/ruling")
+        )
+
+        assertEquals(
+            mapper.readTree("""{"ruling": {"action":"BLOCK"}}"""),
+            root.get("/dev/0")
         )
 
         root.add("/dev/mi/apps/*", BLOCK)
@@ -61,57 +74,12 @@ class RulingTest {
             root.json()
         )
 
-//        assertEquals("/stuff/echo", Ruling(BLOCK, "/stuff/echo").path)
-//        assertEquals("/type/id", Ruling(BLOCK, "/type/id").path)
-//        assertEquals("/type/id/type/id", Ruling(BLOCK, "/type/id/type/id").path)
-//        assertThrows(InvalidPathRootException::class.java) { Ruling(BLOCK, "stuff") }
-//        assertThrows(InvalidPathException::class.java) { Ruling(BLOCK, "/stuff") }
-//        assertThrows(InvalidPathException::class.java) { Ruling(BLOCK, "/") }
-//        assertThrows(InvalidPathException::class.java) { Ruling(BLOCK, "/stuff/s/s") }
-//
-//
-//        assertThrows(InvalidPathException::class.java) {
-//            Ruling(BLOCK, "/devices/*/networks/*").getSubRuling("/devices/echo/networks") }
-//
-//        assertThrows(InvalidSubRulingException::class.java) {
-//            Ruling(BLOCK, "/devices/*/networks/*").getSubRuling("/devices/echo") }
-//
-//
-//
-//        assertEquals(Ruling(BLOCK, "/devices/*/networks/*"),
-//            Ruling(BLOCK, "/devices/*/networks/*").getSubRuling("/devices/*/networks/*")
-//        )
-//
-//        assertEquals(Ruling(BLOCK, "/devices/echo/networks/*"),
-//            Ruling(BLOCK, "/devices/*/networks/*").getSubRuling("/devices/echo/networks/*")
-//        )
-//
-//        assertEquals(Ruling(BLOCK, "/devices/echo/networks/wifi"),
-//            Ruling(BLOCK, "/devices/*/networks/*").getSubRuling("/devices/echo/networks/wifi")
-//        )
-//
-//        assertEquals(Ruling(BLOCK, "/devices/*/networks/wifi"),
-//            Ruling(BLOCK, "/devices/*/networks/*").getSubRuling("/devices/*/networks/wifi")
-//        )
-//
-//        assertEquals(Ruling(BLOCK, "/devices/echo/networks/wifi/something/else"),
-//            Ruling(BLOCK, "/devices/*/networks/*").getSubRuling("/devices/echo/networks/wifi/something/else")
-//        )
-//
-//        assertEquals(Ruling(BLOCK, "/devices/*/networks/*/something/else"),
-//            Ruling(BLOCK, "/devices/*/networks/*").getSubRuling("/devices/*/networks/*/something/else")
-//        )
 
-
-//        Ruling(Action.BLOCK, Path("/stuff"))
+//        assertEquals(
+//            mapper.readTree("""{"dev": {"action": "FORCE"}}"""),
+//            root.get("/dev/mi/apps/telegram.beta/channels/*")
+//        )
 
     }
 
-    @Test
-    fun getPath() {
-
-//        assertEquals("/", Path("/").head())
-//        assertEquals("/", Path("/").head())
-
-    }
 }

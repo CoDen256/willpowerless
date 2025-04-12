@@ -3,6 +3,7 @@ package io.github.coden256.wpl.judge.ruling
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.TextNode
 
 
 class RulingNode {
@@ -17,6 +18,31 @@ class RulingNode {
     fun add(path: String, ruling: Ruling) {
         val parts = path.split('/').filter { it.isNotEmpty() }
         add(parts, ruling)
+    }
+
+    fun get(path: String, mapper: ObjectMapper = ObjectMapper()): JsonNode {
+        val parts = path.split('/').filter { it.isNotEmpty() }
+        return get(parts, mapper)
+    }
+
+    private fun get(parts: List<String>, mapper: ObjectMapper): JsonNode {
+        if (parts.isEmpty()) {
+            // Base case: return the current node's JSON
+            return this.json(mapper)
+        }
+
+        val first = parts.first()
+        if (first == "ruling") {
+            // Special case: requesting just the ruling value
+            return if (parts.size == 1) {
+                ruling?.let { it.json(mapper) } ?: mapper.nullNode()
+            } else {
+                mapper.nullNode() // Invalid path like "/ruling/extra"
+            }
+        }
+
+        val child = children[first] ?: return mapper.nullNode()
+        return child.get(parts.drop(1), mapper)
     }
 
     private fun add(parts: List<String>, ruling: Ruling) {
