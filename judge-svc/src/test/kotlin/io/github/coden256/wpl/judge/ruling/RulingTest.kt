@@ -1,8 +1,7 @@
 package io.github.coden256.wpl.judge.ruling
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.coden256.wpl.judge.ruling.Action.BLOCK
-import io.github.coden256.wpl.judge.ruling.Action.FORCE
+import io.github.coden256.wpl.judge.ruling.Action.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -44,6 +43,8 @@ class RulingTest {
 
         root.add("/dev/mi/apps/*", BLOCK)
         root.add("/dev/mi/apps/telegram.beta/channels/*", Ruling(BLOCK, "no telegram channels"))
+        root.add("/dev/mi/apps/telegram.beta/channels/something", Ruling(FORCE, "allow"))
+        root.add("/dev/mi/apps/telegram.beta/channels/telegra*", Ruling(ALLOW, "allow telegram"))
         root.add("/dev/mi/apps/telegram.beta", FORCE)
 
         assertEquals(
@@ -56,6 +57,9 @@ class RulingTest {
                         "telegram.beta": {
                             "ruling": {"action":"FORCE"},
                             "channels": {
+                            
+                                "telegra*": {"ruling": {"action":"ALLOW", "reason": "allow telegram"}},
+                                "something": {"ruling": {"action":"FORCE", "reason": "allow"}},
                                 "*": {
                                     "ruling": {"action":"BLOCK", "reason": "no telegram channels"}
                               
@@ -75,10 +79,34 @@ class RulingTest {
         )
 
 
-//        assertEquals(
-//            mapper.readTree("""{"dev": {"action": "FORCE"}}"""),
-//            root.get("/dev/mi/apps/telegram.beta/channels/*")
-//        )
+        assertEquals(
+            mapper.readTree("""null"""),
+            root.get("/dev/mi/apps/telegram.beta/channels/*/rulings")
+        )
+
+        assertEquals(
+            mapper.readTree("""{"action":"BLOCK", "reason": "no telegram channels"}"""),
+            root.get("/dev/mi/apps/telegram.beta/channels/*/ruling")
+        )
+
+        assertEquals(
+            mapper.readTree("""{"action":"BLOCK", "reason": "no telegram channels"}"""),
+            root.get("/dev/mi/apps/telegram.beta/channels/some/ruling")
+        )
+
+        assertEquals(
+            mapper.readTree("""{"action":"ALLOW", "reason": "allow telegram"}"""),
+            root.get("/dev/mi/apps/telegram.beta/channels/telegram/ruling")
+        )
+
+        assertEquals(
+            mapper.readTree("""{"action":"FORCE", "reason": "allow"}"""),
+            root.get("/dev/mi/apps/telegram.beta/channels/something/ruling")
+        )
+
+
+
+
 
     }
 

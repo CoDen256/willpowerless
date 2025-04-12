@@ -41,8 +41,27 @@ class RulingNode {
             }
         }
 
-        val child = children[first] ?: return mapper.nullNode()
-        return child.get(parts.drop(1), mapper)
+        children[first]?.let { exactMatchNode ->
+            val result = exactMatchNode.get(parts.drop(1), mapper)
+            if (!result.isNull) return result
+        }
+
+        // If no exact match, try wildcard match
+        val wildcardMatch = children.entries
+            .filter { (key, _) -> isWildcardMatch(key, first) }
+            .maxByOrNull { (key, _) -> key.length } // Prefer most specific wildcard
+
+        return wildcardMatch?.let { (_, node) ->
+            node.get(parts.drop(1), mapper)
+        } ?: mapper.nullNode()
+    }
+
+    private fun isWildcardMatch(pattern: String, input: String): Boolean {
+        // Convert pattern to regex (escape everything except *)
+        val regex = pattern
+            .replace(".", "\\.")
+            .replace("*", ".*")
+        return input.matches(Regex(regex))
     }
 
     private fun add(parts: List<String>, ruling: Ruling) {
