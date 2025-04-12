@@ -11,7 +11,7 @@ class RulingTest {
 
     @Test
     fun getRuling() {
-        val root = RulingNode()
+        val root = RulingTree()
 
         root.add("/dev", FORCE)
 

@@ -17,9 +17,4 @@ class JudgeConfiguration {
     fun calendar(@Value("\${api.calendar.ics}") url: String): Calendar {
         return ICSCalendar(url)
     }
-
-    @Bean
-    fun registry(properties: RulingProperties): RulingRegistry {
-        return ConfigurationPropertiesRulingRegistry(properties)
-    }
 }

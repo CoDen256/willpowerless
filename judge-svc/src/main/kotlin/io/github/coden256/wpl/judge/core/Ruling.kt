@@ -5,9 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 
 
-class RulingNode {
-    private val children = mutableMapOf<String, RulingNode>()
+class RulingTree {
+    private val children = mutableMapOf<String, RulingTree>()
     private var ruling: Ruling? = null
+
+
+    override fun toString(): String {
+        return json().toString()
+    }
 
     fun add(path: String, action: Action) {
         val parts = path.split('/').filter { it.isNotEmpty() }
@@ -70,7 +75,7 @@ class RulingNode {
         }
 
         val first = parts.first()
-        val child = children.getOrPut(first) { RulingNode() }
+        val child = children.getOrPut(first) { RulingTree() }
         child.add(parts.drop(1), ruling)
     }
 

@@ -4,17 +4,21 @@ import io.github.coden256.calendar.api.Absence
 import io.github.coden256.calendar.api.Calendar
 import io.github.coden256.wpl.judge.api.Match
 import io.github.coden256.wpl.judge.api.Match.Companion.asMatch
-import io.github.coden256.wpl.judge.core.Law
 import io.github.coden256.wpl.judge.config.RulingRegistry
+import io.github.coden256.wpl.judge.core.Law
+import io.github.coden256.wpl.judge.core.LawRuling
+import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.time.DayOfWeek
-import java.time.Duration
 import java.time.LocalDateTime
-import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
 
@@ -26,16 +30,18 @@ class RestorationLaw(
     private val registry: RulingRegistry,
     private val calendar: Calendar,
     private val config: Cfg
-) : Law {
+) : Law, Logging {
 
     @ConfigurationProperties(prefix = "laws.allow-rest")
     data class Cfg(
         val description: String,
         val rulings: List<String>,
         val expiryToDurationRate: Double,
-        val maxExpiry: Duration,
+        val maxExpiry: java.time.Duration,
+        val minExpiry: java.time.Duration,
         val enabled: Boolean = true
     )
+
 
     override fun isEnabled(): Match {
         val now = LocalDateTime.now()
@@ -58,6 +64,15 @@ class RestorationLaw(
     override fun rulings() = registry.getRules(config.rulings)
 
 
+    override fun stream(): Mono<List<LawRuling>> {
+        return Mono.fromSupplier {
+            rulings()
+        }
+            .doOnSubscribe { logger.info("Subscribed restoration: $it") }
+            .doOnNext { logger.info("Asked for restoration: $it") }
+    }
+
+
     // sick leaves or vacations
     private fun getLongAbsences(): List<Absence> {
         return try {
@@ -77,12 +92,20 @@ class RestorationLaw(
         }
     }
 
-    private fun getExtraDuration(length: kotlin.time.Duration): kotlin.time.Duration {
-        return (length.inWholeHours / 1.8).coerceIn(0.0, 7.days.inWholeMinutes.toDouble()).hours
+    private fun getExtraDuration(length: Duration):Duration {
+        return (length.inWholeHours / config.expiryToDurationRate).hours
+            .coerceIn(
+                config.minExpiry.toKotlinDuration(),
+                config.maxExpiry.toKotlinDuration()
+            )
     }
 
-    private fun Absence.duration(): kotlin.time.Duration {
-        return Duration.between(start, end).toKotlinDuration()
+    private fun Duration.coerceIn(min: Duration, max: Duration): Duration {
+        return this.inWholeNanoseconds.coerceIn(min.inWholeNanoseconds, max.inWholeNanoseconds).nanoseconds
+    }
+
+    private fun Absence.duration(): Duration {
+        return java.time.Duration.between(start, end).toKotlinDuration()
     }
 }
 
