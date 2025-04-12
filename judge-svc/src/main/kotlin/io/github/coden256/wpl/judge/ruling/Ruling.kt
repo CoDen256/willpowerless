@@ -1,87 +1,62 @@
 package io.github.coden256.wpl.judge.ruling
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 
 
-class RulingNode(
-    path: List<String> = emptyList(),
-    ruling: Action? = null
-) : ObjectNode(JsonNodeFactory.instance) {
-
-    init {
-        if (path.isEmpty() && ruling != null) {
-            put("ruling", ruling.toString())
-        } else if (path.isNotEmpty()) {
-            replace(path.first(), RulingNode(path.drop(1), ruling))
-        }
-    }
+class RulingNode {
+    private val children = mutableMapOf<String, RulingNode>()
+    private var ruling: Ruling? = null
 
     fun add(path: String, action: Action) {
-        val segments = path.split("/").filter { it.isNotEmpty() }
-        val head = segments.first()
-        if (!has(head)) {
-            replace(head, RulingNode(segments.drop(1), action))
-        }else{
+        val parts = path.split('/').filter { it.isNotEmpty() }
+        add(parts, Ruling(action))
+    }
 
+    fun add(path: String, ruling: Ruling) {
+        val parts = path.split('/').filter { it.isNotEmpty() }
+        add(parts, ruling)
+    }
+
+    private fun add(parts: List<String>, ruling: Ruling) {
+        if (parts.isEmpty()) {
+            this.ruling = ruling
+            return
         }
+
+        val first = parts.first()
+        val child = children.getOrPut(first) { RulingNode() }
+        child.add(parts.drop(1), ruling)
     }
 
-    fun json(): JsonNode {
-        return this
-    }
-}
+    fun json(mapper: ObjectMapper = ObjectMapper()): JsonNode {
+        val node = mapper.createObjectNode()
 
-data class Path(val path: String) {
-    val segments = path.split("/").filter { it.isNotEmpty() }
+        ruling?.let {
+            node.set<ObjectNode>("ruling", it.json(mapper))
+        }
 
-    init {
-        if (!path.startsWith("/")) throw InvalidPathRootException("Invalid path $path, not starting with '/'")
-    }
+        children.forEach { (key, childNode) ->
+            node.set<ObjectNode>(key, childNode.json(mapper))
+        }
 
-    fun head(): String {
-        return segments[0]
-    }
-
-    fun tail(): String {
-        return segments.drop(1).joinToString("/")
+        return node
     }
 }
 
-class Ruling(
-    val action: Action,
-    val path: String
-) {
+data class Ruling(val action: Action, val reason: String? = null){
 
+    fun json(mapper: ObjectMapper = ObjectMapper()): JsonNode {
+        val node = mapper.createObjectNode()
 
-    override fun toString(): String {
-        return path
-    }
+        node.put("action", action.toString())
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        reason?.let { node.put("reason", it) }
 
-        other as Ruling
-
-        if (action != other.action) return false
-        if (path != other.path) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = action.hashCode()
-        result = 31 * result + path.hashCode()
-        return result
+        return node
     }
 }
-
-
-class InvalidPathRootException(msg: String) : RuntimeException(msg)
-class InvalidPathException(msg: String) : RuntimeException(msg)
-class InvalidSubRulingException(msg: String) : RuntimeException(msg)
 
 enum class Action() {
     BLOCK, ALLOW, FORCE

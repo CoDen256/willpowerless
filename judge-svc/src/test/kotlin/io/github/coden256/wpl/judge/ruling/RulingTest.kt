@@ -19,14 +19,45 @@ class RulingTest {
         root.add("/dev", FORCE)
 
         assertEquals(
-            mapper.readTree("""{"dev": {"ruling": "FORCE"}}"""),
+            mapper.readTree("""{"dev": {"ruling": {"action": "FORCE"}}}"""),
             root.json()
         )
 
         root.add("/dev/0", BLOCK)
+        assertEquals(
+            mapper.readTree("""{"dev": {"ruling": {"action":"FORCE"}, "0": {"ruling": {"action":"BLOCK"}}}}"""),
+            root.json()
+        )
+
+        root.add("/dev/mi/apps/*", BLOCK)
+        root.add("/dev/mi/apps/telegram.beta/channels/*", Ruling(BLOCK, "no telegram channels"))
+        root.add("/dev/mi/apps/telegram.beta", FORCE)
 
         assertEquals(
-            mapper.readTree("""{"dev": {"ruling": "FORCE", "0": {"ruling": "BLOCK"}}}"""),
+            mapper.readTree("""
+                {"dev": {
+                "ruling": {"action":"FORCE"}, 
+                "0": {"ruling": {"action":"BLOCK"}},
+                "mi": {
+                    "apps": {
+                        "telegram.beta": {
+                            "ruling": {"action":"FORCE"},
+                            "channels": {
+                                "*": {
+                                    "ruling": {"action":"BLOCK", "reason": "no telegram channels"}
+                              
+                                }
+                            }
+                        },
+                        "*": {
+                            "ruling": {"action":"BLOCK"}
+                        }
+                        
+                    }
+                }
+                }
+                }
+                """.trimIndent()),
             root.json()
         )
 
