@@ -1,7 +1,7 @@
-package io.github.coden256.wpl.judge.ruling
+package io.github.coden256.wpl.judge.core
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.coden256.wpl.judge.ruling.Action.*
+import io.github.coden256.wpl.judge.core.Action.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -103,9 +103,6 @@ class RulingTest {
             mapper.readTree("""{"action":"FORCE", "reason": "allow"}"""),
             root.get("/dev/mi/apps/telegram.beta/channels/something/ruling")
         )
-
-
-
 
 
     }

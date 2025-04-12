@@ -2,7 +2,7 @@ package io.github.coden256.wpl.judge
 
 import io.github.coden256.wellpass.api.CheckIn
 import io.github.coden256.wellpass.api.CheckIns
-import io.github.coden256.wpl.judge.rules.WellpassRule
+import io.github.coden256.wpl.judge.laws.WellpassRule
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime

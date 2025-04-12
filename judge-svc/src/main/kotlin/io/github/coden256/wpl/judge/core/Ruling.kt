@@ -1,9 +1,8 @@
-package io.github.coden256.wpl.judge.ruling
+package io.github.coden256.wpl.judge.core
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.node.TextNode
 
 
 class RulingNode {
