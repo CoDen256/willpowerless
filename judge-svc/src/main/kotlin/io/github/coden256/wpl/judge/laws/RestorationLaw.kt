@@ -5,7 +5,11 @@ import io.github.coden256.calendar.api.Calendar
 import io.github.coden256.wpl.judge.api.Match
 import io.github.coden256.wpl.judge.api.Match.Companion.asMatch
 import io.github.coden256.wpl.judge.core.Law
-import io.github.coden256.wpl.judge.core.RulingRegistry
+import io.github.coden256.wpl.judge.config.RulingRegistry
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.stereotype.Component
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDateTime
@@ -14,10 +18,24 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
 
+
+@Component
+@EnableConfigurationProperties(RestorationLaw.Cfg::class)
+@ConditionalOnProperty(value = ["laws.allow-rest.enabled"], matchIfMissing = true)
 class RestorationLaw(
     private val registry: RulingRegistry,
-    private val calendar: Calendar
-): Law {
+    private val calendar: Calendar,
+    private val config: Cfg
+) : Law {
+
+    @ConfigurationProperties(prefix = "laws.allow-rest")
+    data class Cfg(
+        val description: String,
+        val rulings: List<String>,
+        val expiryToDurationRate: Double,
+        val maxExpiry: Duration,
+        val enabled: Boolean = true
+    )
 
     override fun isEnabled(): Match {
         val now = LocalDateTime.now()
@@ -34,8 +52,11 @@ class RestorationLaw(
     }
 
     override fun expires(): LocalDateTime {
-        TODO("Not yet implemented")
+        return LocalDateTime.MAX
     }
+
+    override fun rulings() = registry.getRules(config.rulings)
+
 
     // sick leaves or vacations
     private fun getLongAbsences(): List<Absence> {
@@ -60,10 +81,8 @@ class RestorationLaw(
         return (length.inWholeHours / 1.8).coerceIn(0.0, 7.days.inWholeMinutes.toDouble()).hours
     }
 
-    private fun Absence.duration(): kotlin.time.Duration{
+    private fun Absence.duration(): kotlin.time.Duration {
         return Duration.between(start, end).toKotlinDuration()
     }
-
-    override fun rulings() = registry.getRules("sick-or-vacation")
 }
 
