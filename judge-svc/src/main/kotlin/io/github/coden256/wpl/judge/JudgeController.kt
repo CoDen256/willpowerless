@@ -38,14 +38,14 @@ class JudgeController(
         return "Hi."
     }
 
-    @GetMapping("/check")
+    @GetMapping("/verdict")
     fun check(@RequestParam(required = false, defaultValue = "false") hard: Boolean): Mono<ResponseEntity<Verdict>> {
         return wellpass
             .checkins(LocalDate.now().minusMonths(4), LocalDate.now())
             .timeout(Duration.ofSeconds(60))
             .map {
 
-                val match = (isGymVisited(it).and(isWithinSchedule(LocalDateTime.now())))
+                val match = (isGymVisited(it))
                     .or(isSickOrVacation(getLongAbsences()), isHardCheck(hard))
 
                 Verdict(
