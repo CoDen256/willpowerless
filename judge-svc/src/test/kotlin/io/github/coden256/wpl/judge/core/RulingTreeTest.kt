@@ -5,7 +5,7 @@ import io.github.coden256.wpl.judge.core.Action.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class RulingTest {
+class RulingTreeTest {
 
     private val mapper = ObjectMapper()
 
@@ -105,6 +105,33 @@ class RulingTest {
         )
 
 
+    }
+
+    @Test
+    fun merge(){
+        val root = RulingTree()
+
+        root.add("/a", FORCE)
+        root.add("/a", BLOCK)
+
+        root.add("/b", BLOCK)
+        root.add("/b", FORCE)
+
+        root.add("/c", BLOCK)
+        root.add("/c", ALLOW)
+
+        root.add("/d", FORCE)
+        root.add("/d", ALLOW)
+
+        assertEquals(
+            mapper.readTree("""{
+                "a": {"ruling":{"action":"FORCE"}},
+                "b": {"ruling":{"action":"FORCE"}},
+                "c": {"ruling":{"action":"BLOCK"}},
+                "d": {"ruling":{"action":"FORCE"}}
+                }""".trimIndent()),
+            root.get("/")
+        )
     }
 
 }

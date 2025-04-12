@@ -11,7 +11,9 @@ interface Law {
 data class Verdict(
     val rulings: List<LawRuling>,
     val enabled: Boolean,
-    val expires: LocalDateTime
+    val expires: LocalDateTime,
+    val reason: String,
+    val law: String,
 )
 
 data class LawRuling(

@@ -51,12 +51,13 @@ class RestorationLaw(
         val extra = getExtraDuration(latestAbsence.duration())
         val expiry = latestAbsence.end.plus(extra.toJavaDuration())
         val enabled = now.isBefore(expiry)
-        val reason = "-> $NAME -> ✅ Is sick or on vacation: ${latestAbsence.end} + $extra"
 
         return Mono.just(Verdict(
-            rulings().map { it.withReason(reason) },
+            rulings(),
             enabled = enabled,
-            expires = expiry
+            expires = expiry,
+            reason = "Is sick or on vacation: ${latestAbsence.end} + $extra",
+            law = NAME
         ))
     }
 

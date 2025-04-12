@@ -70,7 +70,7 @@ class RulingTree {
 
     private fun add(parts: List<String>, ruling: Ruling) {
         if (parts.isEmpty()) {
-            this.ruling = ruling
+            this.ruling = this.ruling?.merge(ruling) ?: ruling
             return
         }
 
@@ -78,6 +78,7 @@ class RulingTree {
         val child = children.getOrPut(first) { RulingTree() }
         child.add(parts.drop(1), ruling)
     }
+
 
     fun json(mapper: ObjectMapper = ObjectMapper()): JsonNode {
         val node = mapper.createObjectNode()
@@ -104,6 +105,18 @@ data class Ruling(val action: Action, val reason: String? = null){
         reason?.let { node.put("reason", it) }
 
         return node
+    }
+
+    fun merge(new: Ruling): Ruling{
+        return when{
+            this.action == new.action  -> Ruling(action, reason + " && " + new.reason)
+            this.action == Action.ALLOW -> new
+            new.action == Action.ALLOW -> this
+
+            this.action == Action.BLOCK && new.action == Action.FORCE -> new
+            this.action == Action.FORCE && new.action == Action.BLOCK -> this
+            else -> this
+        }
     }
 }
 
