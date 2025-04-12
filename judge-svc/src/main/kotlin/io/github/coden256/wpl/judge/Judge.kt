@@ -1,21 +1,41 @@
 package io.github.coden256.wpl.judge
 
+import io.github.coden256.wpl.judge.core.Law
 import io.github.coden256.wpl.judge.core.RulingTree
+import io.github.coden256.wpl.judge.core.Verdict
 import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
-interface Judge{
+interface Judge {
     fun rulings(): Mono<RulingTree>
 }
 
 
 @Component
-class StreamJudge(
-    private val stream: RulingStream
-): Judge, Logging{
+class LawAggregatingJudge(
+    private val laws: List<Law>
+) : Judge, Logging {
     override fun rulings(): Mono<RulingTree> {
-        return stream.next().doOnNext { logger.info("Judge: $it") }
+        val laws: List<Mono<Verdict>> = laws
+            .map { it.verify() }
+
+        return Mono.zip(laws) {
+            val verdicts = it.filterIsInstance<Verdict>()
+            val root = RulingTree()
+            verdicts.forEach { verdict ->
+
+                if (!verdict.enabled) {
+                    logger.info() { "Omitted: ${verdict.rulings}"}
+                    return@forEach
+                }
+                verdict.rulings.forEach {
+                    logger.info() { "Got: $it" }
+                    root.add(it.path, it.action)
+                }
+            }
+            root
+        }
     }
 }
 

@@ -2,17 +2,14 @@ package io.github.coden256.wpl.judge.laws
 
 import io.github.coden256.calendar.api.Absence
 import io.github.coden256.calendar.api.Calendar
-import io.github.coden256.wpl.judge.api.Match
-import io.github.coden256.wpl.judge.api.Match.Companion.asMatch
 import io.github.coden256.wpl.judge.config.RulingRegistry
 import io.github.coden256.wpl.judge.core.Law
-import io.github.coden256.wpl.judge.core.LawRuling
+import io.github.coden256.wpl.judge.core.Verdict
 import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.DayOfWeek
 import java.time.LocalDateTime
@@ -25,14 +22,15 @@ import kotlin.time.toKotlinDuration
 
 @Component
 @EnableConfigurationProperties(RestorationLaw.Cfg::class)
-@ConditionalOnProperty(value = ["laws.allow-rest.enabled"], matchIfMissing = true)
+@ConditionalOnProperty(value = ["laws.${RestorationLaw.NAME}.enabled"], matchIfMissing = true)
 class RestorationLaw(
     private val registry: RulingRegistry,
     private val calendar: Calendar,
     private val config: Cfg
 ) : Law, Logging {
+    companion object { const val NAME = "allow-rest" }
 
-    @ConfigurationProperties(prefix = "laws.allow-rest")
+    @ConfigurationProperties(prefix = "laws.${NAME}")
     data class Cfg(
         val description: String,
         val rulings: List<String>,
@@ -42,34 +40,24 @@ class RestorationLaw(
         val enabled: Boolean = true
     )
 
+    override fun rulings() = registry.getRules(config.rulings)
 
-    override fun isEnabled(): Match {
+    override fun verify(): Mono<Verdict> {
         val now = LocalDateTime.now()
         val latestAbsence = getLongAbsences()
             .maxByOrNull { it.end }
             ?: Absence("n/a", LocalDateTime.MIN, LocalDateTime.MIN)
 
         val extra = getExtraDuration(latestAbsence.duration())
-        return now
-            .isBefore(latestAbsence.end.plus(extra.toJavaDuration()))
-            .asMatch()
-            .onFail("⛔ Is not sick or on vacation: ${latestAbsence.end} + $extra")
-            .onSuccess("✅ Is sick or on vacation: ${latestAbsence.end} + $extra")
-    }
+        val expiry = latestAbsence.end.plus(extra.toJavaDuration())
+        val enabled = now.isBefore(expiry)
+        val reason = "-> $NAME -> ✅ Is sick or on vacation: ${latestAbsence.end} + $extra"
 
-    override fun expires(): LocalDateTime {
-        return LocalDateTime.MAX
-    }
-
-    override fun rulings() = registry.getRules(config.rulings)
-
-
-    override fun stream(): Mono<List<LawRuling>> {
-        return Mono.fromSupplier {
-            rulings()
-        }
-            .doOnSubscribe { logger.info("Subscribed restoration: $it") }
-            .doOnNext { logger.info("Asked for restoration: $it") }
+        return Mono.just(Verdict(
+            rulings().map { it.withReason(reason) },
+            enabled = enabled,
+            expires = expiry
+        ))
     }
 
 
