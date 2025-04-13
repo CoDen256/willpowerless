@@ -13,28 +13,33 @@ class ScheduleTest {
     @Test
     fun matches() {
         assertTrue( Schedule(
-            NegatableProperty(Range.of(LocalTime.MIN, LocalTime.MAX), false),
+            false,
+            Range.of(LocalTime.MIN, LocalTime.MAX),
             listOf(DayOfWeek.MONDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
         ).matches(LocalDateTime.of(2025, 4, 13, 10, 0)))// sunday
 
-        assertFalse( Schedule(
-            NegatableProperty(Range.of(LocalTime.MIN, LocalTime.MAX), true),
-            listOf(DayOfWeek.MONDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+        assertTrue( Schedule(
+            true,
+            Range.of(LocalTime.MIN, LocalTime.MAX),
+            listOf(DayOfWeek.MONDAY, DayOfWeek.SATURDAY)
         ).matches(LocalDateTime.of(2025, 4, 13, 10, 0)))
 
 
-        assertFalse( Schedule(
-            NegatableProperty(Range.of(LocalTime.of(13,0), LocalTime.MAX), true),
-            listOf(DayOfWeek.MONDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+        assertTrue( Schedule(
+            true,
+            Range.of(LocalTime.of(13,0), LocalTime.MAX),
+            listOf(DayOfWeek.MONDAY, DayOfWeek.SATURDAY)
         ).matches(LocalDateTime.of(2025, 4, 13, 13, 10)))
 
         assertTrue( Schedule(
-            NegatableProperty(Range.of(LocalTime.of(13,0), LocalTime.MAX), false),
+            false,
+            Range.of(LocalTime.of(13,0), LocalTime.MAX),
             listOf(DayOfWeek.MONDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
         ).matches(LocalDateTime.of(2025, 4, 13, 13,10)))
 
         assertFalse( Schedule(
-            NegatableProperty(Range.of(LocalTime.of(13,0), LocalTime.MAX), false),
+            false,
+            Range.of(LocalTime.of(13,0), LocalTime.MAX),
             listOf(DayOfWeek.MONDAY, DayOfWeek.SATURDAY)
         ).matches(LocalDateTime.of(2025, 4, 13, 13,10)))
 

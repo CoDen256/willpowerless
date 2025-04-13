@@ -12,8 +12,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.print.attribute.standard.MediaSize.NA
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.toJavaDuration
 
 
 @Component
@@ -24,24 +28,34 @@ class ForceGymLaw(
     private val wellpass: Wellpass,
     private val config: Cfg
 ) : Law, Logging {
-    companion object { const val NAME = "force-gym" }
+    companion object {
+        const val NAME = "force-gym"
+    }
 
     @ConfigurationProperties(prefix = "laws.${NAME}")
     data class Cfg(
         val description: String,
         val rulings: List<String>,
         val expiry: Duration,
-        val enabled: Boolean = true
+        val enabled: Boolean = true,
+        val cache: Duration = Duration.ofHours(1)
     )
+
+    val checkins = Mono
+        .defer {
+            val today = LocalDate.now()
+            logger.info("[$NAME] Requesting gym checkins as of ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}...")
+            wellpass
+                .checkins(today.minusMonths(1), today)
+                .timeout(Duration.ofSeconds(60))
+        }
+        .cache(config.cache)
 
     override fun rulings() = registry.getRules(config.rulings)
 
     override fun verify(): Mono<Verdict> {
         val now = LocalDateTime.now()
-        val today = now.toLocalDate()
-        return wellpass
-            .checkins(today.minusMonths(1), today)
-            .timeout(Duration.ofSeconds(60))
+        return checkins
             .map {
                 val last = it.checkIns.filter { isValidGym(it) }.maxByOrNull { it.checkInDate }
                 val expiry = last?.checkInDate?.plus(config.expiry) ?: LocalDateTime.MIN

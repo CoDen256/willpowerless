@@ -25,12 +25,14 @@ open class StaticLaw(
 
     override fun verify(): Mono<Verdict> {
         val current = LocalDateTime.now()
+        val enabled = config.schedule.any { it.matches(current) } || config.schedule.isEmpty()
+        val reason = if (config.schedule.isNotEmpty()) ": checking schedule=${config.schedule}" else ""
         return Mono.just(
             Verdict(
                 rulings(),
-                enabled = config.schedule.any { it.matches(current) } || config.schedule.isEmpty(),
+                enabled = enabled,
                 expires = LocalDateTime.MAX,
-                reason = config.description,
+                reason = config.description +  reason,
                 law = name
             )
         )
@@ -64,6 +66,10 @@ data class Schedule(
     val timeRange: Range<LocalTime> = Range.of(LocalTime.MIN, LocalTime.MAX),
     val daysOfWeek: List<DayOfWeek>,
 ) {
+    override fun toString(): String {
+        return "${if (!negate) "" else "!"}($timeRange, $daysOfWeek)"
+    }
+
     companion object {
         fun Environment.parseSchedule(prefix: String): Schedule? {
             val negate = getProperty("$prefix.negate", Boolean::class.java)
