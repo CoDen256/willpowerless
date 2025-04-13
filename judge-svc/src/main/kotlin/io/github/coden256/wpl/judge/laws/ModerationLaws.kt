@@ -23,3 +23,12 @@ class ModerateSocialLaw(
     companion object { const val NAME = "moderate-social" }
 }
 
+@Component
+@ConditionalOnProperty(value = ["laws.${AllowBeamerLaw.NAME}.enabled"], matchIfMissing = true)
+class AllowBeamerLaw(
+    env: Environment,
+    registry: RulingRegistry
+) : StaticLaw(NAME, env, registry){
+    companion object { const val NAME = "allow-beamer" }
+}
+

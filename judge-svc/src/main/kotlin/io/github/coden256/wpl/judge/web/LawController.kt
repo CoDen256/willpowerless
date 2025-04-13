@@ -16,8 +16,15 @@ class LawController(
     private val laws: List<Law>
 ) {
 
+    @GetMapping("/")
+    fun getLaws(): ResponseEntity<List<String>> {
+        return laws
+            .map { it.name() }
+            .let { ResponseEntity.ok(it) }
+    }
+
     @GetMapping("/{law}")
-    fun getRuling(@PathVariable law: String): Mono<ResponseEntity<Verdict>> {
+    fun getLaw(@PathVariable law: String): Mono<ResponseEntity<Verdict>> {
         return laws
             .find { it.name() == law }
             ?.verify()
