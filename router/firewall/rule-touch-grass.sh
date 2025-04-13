@@ -13,8 +13,7 @@ uci add_list firewall.@rule[-1].src_mac='10:6F:D9:A0:1C:D1'
 uci add_list firewall.@rule[-1].src_mac='00:C0:CA:AD:D0:23'
 uci set firewall.@rule[-1].target='REJECT'
 uci set firewall.@rule[-1].enabled='0'
-touch_grass=$(uci show firewall.@rule[-1] | head -n1 | cut -d'.' -f2 | cut -d'=' -f1)
 
 uci show firewall.@rule[-1]
 uci commit firewall && /etc/init.d/firewall reload
-echo -e "\nexport TOUCH_GRASS_ID=$touch_grass" >> /etc/profile && source /etc/profile
+echo -e "\nexport RULE_TOUCH_GRASS=$touch_grass" >> /etc/profile && source /etc/profile

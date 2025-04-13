@@ -15,4 +15,4 @@ uci set firewall.@rule[-1].enabled='0'
 
 uci show firewall.@rule[-1]
 uci commit firewall && /etc/init.d/firewall reload
-echo -e "\nexport TOUCH_GRASS_BEAMER_ID=$touch_grass_beamer" >> /etc/profile && source /etc/profile
+echo -e "\nexport RULE_TOUCH_GRASS_BEAMER=$touch_grass_beamer" >> /etc/profile && source /etc/profile

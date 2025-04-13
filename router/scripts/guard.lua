@@ -2,6 +2,8 @@
 
 local http = require("socket.http")
 local io = require("io")
+local json = require("luci.json")
+local jsonc = require("luci.jsonc")
 
 function trim(s)
     return (string.gsub(s, "^%s*(.-)%s*$", "%1"))
@@ -26,17 +28,92 @@ local function set_led(value)
     os.execute("/etc/led " .. tostring(tonumber(value)))
 end
 
+local function set_mac(rule, macs)
+    if #macs == 0 then
+        set_led(1)
+    else
+        set_led(-1)
+    end
+    local mac_list = table.concat(macs, " ")
+    os.execute("/etc/judge/set_mac " .. rule .. " " .. mac_list)
+end
+
+local function run_lockdown()
+    enable_rule("RULE_TOUCH_GRASS", 1)
+    enable_rule("RULE_TOUCH_GRASS_BEAMER", 1)
+    set_led(0)
+end
+
+local function un_lockdown()
+    enable_rule("RULE_TOUCH_GRASS", 0)
+    enable_rule("RULE_TOUCH_GRASS_BEAMER", 0)
+    set_led(1)
+end
+
+
 local function get_endpoint()
     return trim(read_file_to_string("/etc/judge/endpoint"))
 end
 
-local function get_verdict(url)
+local function create_verify_json(json_data)
+    local ok, data = pcall(json.decode, json_data)
+    if not ok or type(data) ~= "table" then
+        return data, "Invalid JSON"
+    end
+    return data
+end
+
+local function request(url)
     local body, code, headers = http.request(tostring(url))
-    if (not tonumber(code) or tonumber(code)  > 399) then
-        print("Error when requesting verdict: " .. code .. "\n" .. body)
+    if (not tonumber(code)) then
+        print("Cannot request " .. url .. " : " .. tostring(code) .. "\n" .. tostring(body))
         return false
     end
-    return true
+
+    if (tonumber(code) > 399) then
+        print("Error when requesting: " .. code .. "\n" .. tostring(body))
+        return false, code
+    end
+
+    local parsed, err = create_verify_json(body)
+    if (err) then
+        print("Error when parsing json: " .. err .. ":\n" .. tostring(parsed))
+        return false, code
+    end
+
+    return true, code, parsed
+end
+
+local function extract_blocked_macs(json_data)
+    local blocked_macs = {}
+
+    for mac, data in pairs(json_data) do
+        if (data.ruling) then
+            print(mac .. " -> " .. data.ruling.action)
+        end
+        -- Validate MAC format and check for BLOCK action
+        if mac:match("^[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]$") and
+                data.ruling and data.ruling.action == "BLOCK" then
+            table.insert(blocked_macs, mac)
+        end
+    end
+
+    return blocked_macs
+end
+
+local function check_rulings(json_data)
+    local ACCESS_RULE = "RULE_OPENWRT_ACCESS_RULING"
+    local target = json_data.access
+
+    print("Checking judge rulings for " .. ACCESS_RULE .. "\n" .. jsonc.stringify(target))
+    if (not target) then
+        print("No access rulings, abort")
+        return
+    end
+
+    local macs = extract_blocked_macs(target)
+    print("Blocking (" .. table.concat(macs, ",") .. ")")
+    set_mac(ACCESS_RULE, macs)
 end
 
 -- ======================
@@ -44,16 +121,19 @@ end
 -- ======================
 
 local formatted_time = os.date("%Y-%m-%d %H:%M:%S")
-
 local endpoint = get_endpoint()
-print("\n\n" .. formatted_time .. " - running " .. endpoint)
 
-if not get_verdict(endpoint) then
-    enable_rule("TOUCH_GRASS_ID", 1)
-    enable_rule("TOUCH_GRASS_BEAMER_ID", 1)
-    set_led(-1)
-else
-    enable_rule("TOUCH_GRASS_ID", 0)
-    enable_rule("TOUCH_GRASS_BEAMER_ID", 0)
-    set_led(1)
+print("\n\n" .. formatted_time .. " - running " .. tostring(endpoint))
+local ok, code, data = request(endpoint)
+if (not code) then
+    print("Running Lockdown since I cannot request judge")
+    run_lockdown()
+    os.exit(1)
 end
+un_lockdown()
+
+if (not ok) then
+    print("Judge said something funky, ignoring for now any rules, not doing anything, removing lockdown")
+    os.exit(1)
+end
+check_rulings(data)

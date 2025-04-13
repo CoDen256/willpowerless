@@ -16,6 +16,7 @@ mkdir /root/log
 # System -> general settings -> timezone
 
 ### Apply rules
+./firewall/rule-judge.sh
 ./firewall/rule-touch-grass.sh
 ./firewall/rule-touch-grass-beamer.sh
 
