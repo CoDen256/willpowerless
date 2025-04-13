@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
 
 open class StaticLaw(
     protected val name: String,
@@ -24,7 +25,7 @@ open class StaticLaw(
     override fun rulings(): List<LawRuling> = registry.getRules(config.rulings)
 
     override fun verify(): Mono<Verdict> {
-        val current = LocalDateTime.now()
+        val current = LocalDateTime.now(ZoneId.of("CET"))
         val enabled = config.schedule.any { it.matches(current) } || config.schedule.isEmpty()
         val reason = if (config.schedule.isNotEmpty()) ": checking schedule=${config.schedule}" else ""
         return Mono.just(

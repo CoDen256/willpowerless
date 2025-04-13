@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.nanoseconds
@@ -43,8 +44,8 @@ class RestorationLaw(
     override fun rulings() = registry.getRules(config.rulings)
 
     override fun verify(): Mono<Verdict> {
-        val now = LocalDateTime.now()
-        val latestAbsence = getLongAbsences()
+        val now = LocalDateTime.now(ZoneId.of("CET"))
+        val latestAbsence = getLongAbsences(now)
             .maxByOrNull { it.end }
             ?: Absence("n/a", LocalDateTime.MIN, LocalDateTime.MIN)
 
@@ -67,10 +68,10 @@ class RestorationLaw(
 
 
     // sick leaves or vacations
-    private fun getLongAbsences(): List<Absence> {
+    private fun getLongAbsences(now: LocalDateTime): List<Absence> {
         return try {
             calendar.absences()
-                .filter { it.start.isBefore(LocalDateTime.now()) }
+                .filter { it.start.isBefore(now) }
                 .filter { it.duration() >= 23.9.hours }
                 .map {
                     when (it.end.dayOfWeek) {

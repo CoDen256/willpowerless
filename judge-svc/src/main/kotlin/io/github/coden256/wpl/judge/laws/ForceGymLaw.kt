@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.print.attribute.standard.MediaSize.NA
 import kotlin.time.Duration.Companion.minutes
@@ -43,8 +44,8 @@ class ForceGymLaw(
 
     val checkins = Mono
         .defer {
-            val today = LocalDate.now()
-            logger.info("[$NAME] Requesting gym checkins as of ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}...")
+            val today = LocalDate.now(ZoneId.of("CET"))
+            logger.info("[$NAME] Requesting gym checkins as of ${LocalDateTime.now(ZoneId.of("CET")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}...")
             wellpass
                 .checkins(today.minusMonths(1), today)
                 .timeout(Duration.ofSeconds(60))
@@ -54,7 +55,7 @@ class ForceGymLaw(
     override fun rulings() = registry.getRules(config.rulings)
 
     override fun verify(): Mono<Verdict> {
-        val now = LocalDateTime.now()
+        val now = LocalDateTime.now(ZoneId.of("CET"))
         return checkins
             .map {
                 val last = it.checkIns.filter { isValidGym(it) }.maxByOrNull { it.checkInDate }
