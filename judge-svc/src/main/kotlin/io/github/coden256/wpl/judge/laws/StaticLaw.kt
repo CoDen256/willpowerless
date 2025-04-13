@@ -60,19 +60,19 @@ data class Cfg(
 }
 
 data class Schedule(
-    val timeRange: NegatableProperty<Range<LocalTime>> = NegatableProperty(Range.of(LocalTime.MIN, LocalTime.MAX), false),
+    val negate: Boolean = false,
+    val timeRange: Range<LocalTime> = Range.of(LocalTime.MIN, LocalTime.MAX),
     val daysOfWeek: List<DayOfWeek>,
 ) {
     companion object {
         fun Environment.parseSchedule(prefix: String): Schedule? {
+            val negate = getProperty("$prefix.negate", Boolean::class.java)
             val timeRange = getProperty("$prefix.timeRange")
             val list = getListProperty<String>("$prefix.daysOfWeek")
-            if (list.isEmpty() && timeRange == null) return null
+            if (list.isEmpty() && timeRange == null && negate == null) return null
             return Schedule(
-                NegatableProperty.parse(timeRange, { parseTimeRange(it) }) ?: NegatableProperty(
-                    Range.of(LocalTime.MIN, LocalTime.MAX),
-                    false
-                ),
+                negate ?: false,
+                timeRange?.let { parseTimeRange(it) } ?: Range.of(LocalTime.MIN, LocalTime.MAX),
                 list.map { DayOfWeek.valueOf(it) }
             )
         }
@@ -87,8 +87,8 @@ data class Schedule(
     }
 
     fun matches(current: LocalDateTime): Boolean {
-        return timeRange.matches { it.contains(current.toLocalTime()) }
-                && daysOfWeek.contains(current.dayOfWeek)
+        val match = timeRange.contains(current.toLocalTime()) && daysOfWeek.contains(current.dayOfWeek)
+        return (match && !negate) || (!match && negate)
     }
 
     fun <T> NegatableProperty<T>.matches(matching: (T) -> Boolean): Boolean {
