@@ -149,10 +149,10 @@ local function check_dns(json_data)
             print(dns .. " -> " .. data.ruling.action)
         end
         if data.ruling and data.ruling.action == "FORCE" then
-            content = content .. dns .. "\n"
+            content = content .. "nameserver " .. dns .. "\n"
         end
         if data.ruling and data.ruling.action == "BLOCK" then
-            content = content .. "#" .. dns .. "\n"
+            content = content .. "# nameserver " .. dns .. "\n"
         end
     end
 
