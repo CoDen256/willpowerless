@@ -14,7 +14,7 @@ uci del dhcp.cfg01411c.nonegcache
 uci set dhcp.cfg01411c.resolvfile='/root/resolv.conf'
 uci commit dhcp && /etc/init.d/dhcp reload
 
-
+# is updated by judge
 cat << "EOF" > /root/resolv.conf
 
 nameserver 208.67.222.123

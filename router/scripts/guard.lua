@@ -101,11 +101,29 @@ local function extract_blocked_macs(json_data)
     return blocked_macs
 end
 
+local function write_file(path, content)
+    local dir = path:match("^(.*)/")
+    if dir and nixio.fs.stat(dir, "type") ~= "dir" then
+        print("Directory doesn't exist")
+        return false
+    end
+
+    local file = io.open(path, "w")
+    if not file then
+        print("No write permission or other error")
+        return false
+    end
+
+    file:write(content)
+    file:close()
+    return true
+end
+
 local function check_rulings(json_data)
     local ACCESS_RULE = "RULE_OPENWRT_ACCESS_RULING"
     local target = json_data.access
 
-    print("Checking judge rulings for " .. ACCESS_RULE .. "\n" .. jsonc.stringify(target))
+    print("Checking judge rulings for " .. ACCESS_RULE .. "\n" .. tostring(jsonc.stringify(target)))
     if (not target) then
         print("No access rulings, abort")
         return
@@ -114,6 +132,33 @@ local function check_rulings(json_data)
     local macs = extract_blocked_macs(target)
     print("Blocking (" .. table.concat(macs, ",") .. ")")
     set_mac(ACCESS_RULE, macs)
+end
+
+local function check_dns(json_data)
+    local target = json_data.dns
+
+    print("Checking judge rulings for dns \n" .. tostring(jsonc.stringify(target)))
+    if (not target) then
+        print("No dns rulings, abort")
+        return
+    end
+
+    local content = ""
+    for dns, data in pairs(target) do
+        if (data.ruling) then
+            print(dns .. " -> " .. data.ruling.action)
+        end
+        if data.ruling and data.ruling.action == "FORCE" then
+            content = content .. dns .. "\n"
+        end
+        if data.ruling and data.ruling.action == "BLOCK" then
+            content = content .. "#" .. dns .. "\n"
+        end
+    end
+
+    print("DNS: \n" .. content)
+
+    write_file("/root/resolv.conf", content)
 end
 
 -- ======================
@@ -136,4 +181,10 @@ if (not ok) then
     print("Judge said something funky, ignoring for now any rules, not doing anything, removing lockdown")
     os.exit(1)
 end
+
+if (not data) then
+    print("Judge sent strange data, ignoring for now any rules")
+    os.exit(1)
+end
 check_rulings(data)
+check_dns(data)
