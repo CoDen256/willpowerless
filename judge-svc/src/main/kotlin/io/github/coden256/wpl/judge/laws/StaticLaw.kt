@@ -4,9 +4,14 @@ import io.github.coden256.wpl.judge.config.RulingRegistry
 import io.github.coden256.wpl.judge.core.Law
 import io.github.coden256.wpl.judge.core.LawRuling
 import io.github.coden256.wpl.judge.core.Verdict
+import io.github.coden256.wpl.judge.laws.Cfg.Companion.parseCfg
+import io.github.coden256.wpl.judge.laws.Schedule.Companion.parseSchedule
+import org.apache.commons.lang3.Range
 import org.springframework.core.env.Environment
 import reactor.core.publisher.Mono
+import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 open class StaticLaw(
     protected val name: String,
@@ -14,40 +19,16 @@ open class StaticLaw(
     protected val registry: RulingRegistry,
 ) : Law {
 
-    protected val config: Cfg = parseCfg(env)
-
-    data class Cfg(
-        val description: String,
-        val rulings: List<String>,
-        val enabled: Boolean = true
-    )
-
-    private fun parseCfg(env: Environment): Cfg {
-        return Cfg(
-            description = env.getProperty("laws.$name.description")!!,
-            rulings = env.getListProperty<String>("laws.$name.rulings"),
-            enabled = env.getProperty("laws.$name.enabled", Boolean::class.java) ?: true
-        )
-    }
-
-    private inline fun <reified T> Environment.getListProperty(prefix: String): List<T> {
-        val list = mutableListOf<T>()
-        var index = 0
-        while (true) {
-            val value = getProperty("$prefix[$index]", T::class.java) ?: break
-            list.add(value)
-            index++
-        }
-        return list
-    }
+    protected val config: Cfg = env.parseCfg(name)
 
     override fun rulings(): List<LawRuling> = registry.getRules(config.rulings)
 
     override fun verify(): Mono<Verdict> {
+        val current = LocalDateTime.now()
         return Mono.just(
             Verdict(
                 rulings(),
-                enabled = true,
+                enabled = config.schedule.any { it.matches(current) } || config.schedule.isEmpty(),
                 expires = LocalDateTime.MAX,
                 reason = config.description,
                 law = name
@@ -55,4 +36,93 @@ open class StaticLaw(
         )
     }
 
+    override fun name(): String {
+        return name
+    }
+}
+
+data class Cfg(
+    val description: String,
+    val rulings: List<String>,
+    val enabled: Boolean = true,
+    val schedule: List<Schedule> = emptyList()
+) {
+    companion object {
+        fun Environment.parseCfg(name: String): Cfg {
+            return Cfg(
+                description = getProperty("laws.$name.description")!!,
+                rulings = getListProperty<String>("laws.$name.rulings"),
+                enabled = getProperty("laws.$name.enabled", Boolean::class.java) ?: true,
+                schedule = getListProperty<Schedule>("laws.$name.schedule")
+            )
+        }
+    }
+}
+
+data class Schedule(
+    val timeRange: NegatableProperty<Range<LocalTime>> = NegatableProperty(Range.of(LocalTime.MIN, LocalTime.MAX), false),
+    val daysOfWeek: List<DayOfWeek>,
+) {
+    companion object {
+        fun Environment.parseSchedule(prefix: String): Schedule? {
+            val timeRange = getProperty("$prefix.timeRange")
+            val list = getListProperty<String>("$prefix.daysOfWeek")
+            if (list.isEmpty() && timeRange == null) return null
+            return Schedule(
+                NegatableProperty.parse(timeRange, { parseTimeRange(it) }) ?: NegatableProperty(
+                    Range.of(LocalTime.MIN, LocalTime.MAX),
+                    false
+                ),
+                list.map { DayOfWeek.valueOf(it) }
+            )
+        }
+
+        private fun parseTimeRange(range: String): Range<LocalTime> {
+            val (start, end) = range
+                .split("-")
+                .map { it.trim() }
+                .map { LocalTime.parse(it) }
+            return Range.of(start, end)
+        }
+    }
+
+    fun matches(current: LocalDateTime): Boolean {
+        return timeRange.matches { it.contains(current.toLocalTime()) }
+                && daysOfWeek.contains(current.dayOfWeek)
+    }
+
+    fun <T> NegatableProperty<T>.matches(matching: (T) -> Boolean): Boolean {
+        val match = matching(value)
+        return (match && !negate) || (!match && negate)
+    }
+
+}
+
+data class NegatableProperty<T>(val value: T, val negate: Boolean) {
+    companion object {
+        fun <T> parse(property: String?, restParsing: (String) -> T): NegatableProperty<T>? {
+            if (property == null) return null
+            val negated = property.trimStart().startsWith("!")
+            val new = property.trimStart().removePrefix("!").trimStart()
+            return NegatableProperty(restParsing(new), negated)
+        }
+    }
+}
+
+inline fun <reified T> Environment.getListProperty(prefix: String): List<T> {
+    val list = mutableListOf<T>()
+    var index = 0
+    while (true) {
+        val value = tryGetProperty<T>("$prefix[$index]") ?: break
+        list.add(value)
+        index++
+    }
+    return list
+}
+
+inline fun <reified T> Environment.tryGetProperty(key: String): T? {
+    if (T::class == Schedule::class) {
+        return this.parseSchedule(key) as T?
+    }
+    return getProperty(key, T::class.java)
 }

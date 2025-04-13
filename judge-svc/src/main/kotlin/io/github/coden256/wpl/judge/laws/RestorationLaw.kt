@@ -61,6 +61,10 @@ class RestorationLaw(
         ))
     }
 
+    override fun name(): String {
+        return NAME
+    }
+
 
     // sick leaves or vacations
     private fun getLongAbsences(): List<Absence> {

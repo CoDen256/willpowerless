@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 interface Law {
     fun rulings(): List<LawRuling>
     fun verify(): Mono<Verdict>
+    fun name(): String
 }
 
 data class Verdict(

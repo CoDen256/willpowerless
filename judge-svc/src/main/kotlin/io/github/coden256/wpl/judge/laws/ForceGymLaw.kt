@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.Duration
 import java.time.LocalDateTime
+import javax.print.attribute.standard.MediaSize.NA
 
 
 @Component
@@ -54,6 +55,10 @@ class ForceGymLaw(
                     law = NAME
                 )
             }
+    }
+
+    override fun name(): String {
+        return NAME
     }
 
     private fun isValidGym(it: CheckIn) =
