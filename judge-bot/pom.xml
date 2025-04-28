@@ -32,11 +32,11 @@
             <artifactId>kotlin-csv-jvm</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.github.skebir</groupId>
-            <artifactId>prettytable</artifactId>
-            <version>1.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.github.skebir</groupId>-->
+<!--            <artifactId>prettytable</artifactId>-->
+<!--            <version>1.0</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>

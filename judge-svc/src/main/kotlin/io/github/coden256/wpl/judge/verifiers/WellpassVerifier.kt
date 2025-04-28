@@ -1,7 +1,7 @@
-package io.github.coden256.wpl.judge.laws
+package io.github.coden256.wpl.judge.verifiers
 
-import io.github.coden256.wellpass.api.CheckIn
-import io.github.coden256.wellpass.api.Wellpass
+import io.github.coden256.wellpass.CheckIn
+import io.github.coden256.wellpass.Wellpass
 import io.github.coden256.wpl.judge.config.RulingRegistry
 import io.github.coden256.wpl.judge.core.Law
 import io.github.coden256.wpl.judge.core.Verdict
@@ -16,15 +16,12 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import javax.print.attribute.standard.MediaSize.NA
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.toJavaDuration
 
 
-@Component
-@EnableConfigurationProperties(ForceGymLaw.Cfg::class)
-@ConditionalOnProperty(value = ["laws.${ForceGymLaw.NAME}.enabled"], matchIfMissing = true)
-class ForceGymLaw(
+//@Component
+@EnableConfigurationProperties(WellpassVerifier.Cfg::class)
+@ConditionalOnProperty(value = ["laws.${WellpassVerifier.NAME}.enabled"], matchIfMissing = true)
+class WellpassVerifier(
     private val registry: RulingRegistry,
     private val wellpass: Wellpass,
     private val config: Cfg
@@ -32,6 +29,11 @@ class ForceGymLaw(
     companion object {
         const val NAME = "force-gym"
     }
+
+    data class Config(
+        val expiry: Duration,
+        val cache: Duration = Duration.ofHours(1)
+    )
 
     @ConfigurationProperties(prefix = "laws.${NAME}")
     data class Cfg(

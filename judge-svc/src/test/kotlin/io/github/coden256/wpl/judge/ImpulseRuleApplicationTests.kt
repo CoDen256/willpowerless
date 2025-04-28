@@ -1,6 +1,6 @@
 package io.github.coden256.wpl.judge
 
-import io.github.coden256.wellpass.api.Wellpass
+import io.github.coden256.wellpass.Wellpass
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

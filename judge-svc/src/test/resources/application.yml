@@ -1,0 +1,81 @@
+test.laws:
+  - name: "Allow home office"
+    description: Allow internet access during home office hours
+    verify:
+      - type: "ScheduleVerifier"
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
+        timeRange: 08:00 - 16:00
+    out:
+      - ${rul.ruling}
+
+  - name: "Allow Restoration"
+    description: Allow everything in order to rest and recover in case of sickness or vacation
+    verify:
+      - type: CalenderAbsenceVerifier
+        expiryToDurationRate: 1.8 # 1.8 (e.g. 10 days absence -> +10/1.8 ~ +5.5 days expiry)
+        maxExpiry: 7d
+        minExpiry: 0d
+    out:
+      - ${rul.ruling2}
+
+  - name: "Allow Night Access"
+    description: Allow night access, since its unlikely to get abused
+    verify:
+      - type: ScheduleVerifier
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+        timeRange: 00:00 - 09:00
+    out:
+      - ${rul.ruling}
+      - ${rul.ruling2}
+
+  - name: "Allow Night Beamer"
+    description: Allow night beamer, since others are involved
+    verify:
+      - type: ScheduleVerifier
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+        timeRange: 20:00 - 00:00
+      - type: ScheduleVerifier
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+        timeRange: 00:00 - 09:00
+    out:
+      - ${rul.ruling}
+      - ${rul.ruling2}
+
+  - name: "Force Gym"
+    description: Force regular gym visits
+    verify:
+      - type: WellpassVerifier
+        expiry: 5d
+        cache: 1h
+    out:
+      - ${rul.ruling}
+
+  - name: "Force Breaks"
+    description: Force regular breaks from computer/phone
+    verify:
+      - type: "ScheduleVerifier"
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+        timeRange: 08:00 - 18:00
+    out:
+      - ${rul.ruling}
+
+  - name: "Moderate A" # Verifier.ApplyAlways
+    description: "Prohibit overconsumption of A"
+    out:
+      - ${rul.ruling}
+
+  - name: "Moderate Social"
+    description: "Prohibit overconsumption of social media and brain rotting"
+    out:
+      - ${rul.ruling}
+
+
+rul:
+  ruling:
+    block:
+      - /alpha
+    force:
+      - /beta
+#  ruling2:
+#    block:
+#      - /gamma
