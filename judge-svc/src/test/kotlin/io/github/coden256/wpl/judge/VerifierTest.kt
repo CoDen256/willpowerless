@@ -1,5 +1,7 @@
 package io.github.coden256.wpl.judge
 
+import io.github.coden256.wellpass.config.WellpassConfiguration
+import io.github.coden256.wpl.judge.config.JudgeConfiguration
 import io.github.coden256.wpl.judge.verifiers.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.core.env.Environment
 
 @SpringBootTest
+@Import(WellpassConfiguration::class)
 class VerifierTest {
 
 
@@ -29,7 +32,7 @@ class VerifierTest {
 
     @Configuration
     @EnableConfigurationProperties(MultipleLawsProperties::class)
-    @Import(*[VerifierBeanByConfigReplicator::class, TestVerifier::class])
+    @Import(*[VerifierBeanByConfigReplicator::class, WellpassVerifier::class, WellpassConfiguration::class])
     class Config {
 
     }

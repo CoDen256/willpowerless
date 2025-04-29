@@ -37,6 +37,9 @@ judge.laws:
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
         timeRange: 00:00 - 09:00
+      - type: WellpassVerifier
+        expiry: 6d
+        cache: 1h
     out:
       - ${rul.ruling}
       - ${rul.ruling2}
@@ -46,6 +49,9 @@ judge.laws:
     verify:
       - type: WellpassVerifier
         expiry: 5d
+        cache: 1h
+      - type: WellpassVerifier
+        expiry: 7d
         cache: 1h
     out:
       - ${rul.ruling}
@@ -79,3 +85,15 @@ rul:
 #  ruling2:
 #    block:
 #      - /gamma
+
+api:
+  wellpass:
+    host: https://qualitrain.netpulse.com
+    auth:
+      password: "p"
+      username: "u"
+    headers: {}
+    limit:
+      requests: 1
+      every: 1s
+      timeout: 5m

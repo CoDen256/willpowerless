@@ -83,6 +83,7 @@ data class VerifierDefinition(
 
 interface Verifier<C : VerifierConfig> {
     var config: C
+    var definition: VerifierDefinition?
     fun verify(): Mono<Success>
 }
 

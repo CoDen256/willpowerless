@@ -2,13 +2,10 @@ package io.github.coden256.wpl.judge.verifiers
 
 import io.github.coden256.wellpass.CheckIn
 import io.github.coden256.wellpass.Wellpass
-import io.github.coden256.wpl.judge.config.RulingRegistry
-import io.github.coden256.wpl.judge.core.Law
-import io.github.coden256.wpl.judge.core.Verdict
+import io.github.coden256.wellpass.config.WellpassConfiguration
+import jakarta.annotation.PostConstruct
 import org.apache.logging.log4j.kotlin.Logging
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.Duration
@@ -18,64 +15,48 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 
-//@Component
-@EnableConfigurationProperties(WellpassVerifier.Cfg::class)
-@ConditionalOnProperty(value = ["laws.${WellpassVerifier.NAME}.enabled"], matchIfMissing = true)
+@Component
+@Import(WellpassConfiguration::class)
 class WellpassVerifier(
-    private val registry: RulingRegistry,
     private val wellpass: Wellpass,
-    private val config: Cfg
-) : Law, Logging {
-    companion object {
-        const val NAME = "force-gym"
-    }
+) : Verifier<WellpassVerifier.Config>, Logging {
+    data class Config(val expiry: Duration = Duration.ofDays(5),
+                      val cache: Duration = Duration.ofHours(24)): VerifierConfig
 
-    data class Config(
-        val expiry: Duration,
-        val cache: Duration = Duration.ofHours(1)
-    )
+    override var definition: VerifierDefinition? = null
+    override var config: Config = Config()
 
-    @ConfigurationProperties(prefix = "laws.${NAME}")
-    data class Cfg(
-        val description: String,
-        val rulings: List<String>,
-        val expiry: Duration,
-        val enabled: Boolean = true,
-        val cache: Duration = Duration.ofHours(1)
-    )
+
+    var cache = config.cache
 
     val checkins = Mono
         .defer {
             val today = LocalDate.now(ZoneId.of("CET"))
-            logger.info("[$NAME] Requesting gym checkins as of ${LocalDateTime.now(ZoneId.of("CET")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}...")
+            logger.info("Requesting gym checkins as of ${LocalDateTime.now(ZoneId.of("CET")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}...")
             wellpass
                 .checkins(today.minusMonths(1), today)
                 .timeout(Duration.ofSeconds(60))
         }
         .cache(config.cache)
 
-    override fun rulings() = registry.getRules(config.rulings)
-
-    override fun verify(): Mono<Verdict> {
-        val now = LocalDateTime.now(ZoneId.of("CET"))
-        return checkins
-            .map {
-                val last = it.checkIns.filter { isValidGym(it) }.maxByOrNull { it.checkInDate }
-                val expiry = last?.checkInDate?.plus(config.expiry) ?: LocalDateTime.MIN
-                val enabled = now.isAfter(expiry)
-
-                Verdict(
-                    rulings(),
-                    enabled = enabled,
-                    expires = expiry,
-                    reason = "Last checkin was more than ${config.expiry.toDays()} days ago: ${last?.name} on ${last?.checkInDate}",
-                    law = NAME
-                )
-            }
+    @PostConstruct
+    fun init(){
+        cache = config.cache
     }
 
-    override fun name(): String {
-        return NAME
+    override fun verify(): Mono<Success> {
+        val now = LocalDateTime.now(ZoneId.of("CET"))
+        return checkins
+            .mapNotNull {
+                val last = it.checkIns.filter { isValidGym(it) }.maxByOrNull { it.checkInDate }
+                val expiry = last?.checkInDate?.plus(config.expiry) ?: LocalDateTime.MIN
+                if(!now.isAfter(expiry)) return@mapNotNull null
+
+                Success(
+                    expiry = expiry.atZone(ZoneId.of("CET")).toInstant(),
+                    reason = "Last checkin was more than ${config.expiry.toDays()} days ago: ${last?.name} on ${last?.checkInDate}"
+                )
+            }
     }
 
     private fun isValidGym(it: CheckIn) =
