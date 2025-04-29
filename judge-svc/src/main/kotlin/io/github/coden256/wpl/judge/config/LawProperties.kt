@@ -1,7 +1,7 @@
 package io.github.coden256.wpl.judge.config
 
-import io.github.coden256.wpl.judge.verifiers.api.VerifierDefinition
-import io.github.coden256.wpl.judge.verifiers.api.VerifierDefinitionProvider
+import io.github.coden256.wpl.judge.verifiers.VerifierDefinition
+import io.github.coden256.wpl.judge.verifiers.VerifierDefinitionProvider
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 private const val PREFIX = "judge"

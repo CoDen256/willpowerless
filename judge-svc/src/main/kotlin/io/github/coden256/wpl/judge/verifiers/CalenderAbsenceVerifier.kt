@@ -1,8 +1,5 @@
 package io.github.coden256.wpl.judge.verifiers
 
-import io.github.coden256.wpl.judge.verifiers.api.Success
-import io.github.coden256.wpl.judge.verifiers.api.Verifier
-import io.github.coden256.wpl.judge.verifiers.api.VerifierConfig
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 

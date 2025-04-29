@@ -1,4 +1,4 @@
-package io.github.coden256.wpl.judge.verifiers.api
+package io.github.coden256.wpl.judge.verifiers
 
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.beans.factory.support.DefaultListableBeanFactory
@@ -6,7 +6,6 @@ import org.springframework.beans.factory.support.GenericBeanDefinition
 import org.springframework.boot.context.properties.bind.Binder
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
-import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
@@ -26,7 +25,7 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
     }
 
     override fun postProcessAfterInitialization(bean: Any, beanName: String): Any? {
-        if (bean is Verifier<*>) {
+        if (bean is Verifier<*> && !beanName.contains("copy")) {
             replicateBeanWithConfig(bean, beanName)
             return null
         }
@@ -50,14 +49,14 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
         verifierDefinitionProvider
             .getVerifierDefinitionsByClass(originalBean::class)
             .forEachIndexed { index, definition ->
-                val newBeanName = "${originalBeanName}_${definition.parent}_${definition.index}"
+                val newBeanName = "${originalBeanName}_copy_${definition.parent}_${definition.index}"
 
                 // Create a new bean definition based on the original
                 val beanDefinition = GenericBeanDefinition().apply {
                     beanClassName = originalDefinition.beanClassName
                     propertyValues.addPropertyValues(originalDefinition.propertyValues)
 
-                    val config: VerifierConfig = bindProperties(applicationContext.environment, definition.path, configClass.java)
+                    val config: VerifierConfig = bindProperties(definition.path, configClass.java)
                     config.definition = definition
                     propertyValues.add(Verifier<*>::config.name, config)
                 }
@@ -67,10 +66,22 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
         beanFactory.removeBeanDefinition(originalBeanName)
     }
 
-    fun <T> bindProperties(environment: Environment, prefix: String, targetClass: Class<T>): T {
-        applicationContext.environment
-        return Binder.get(environment)
+    fun <T> bindProperties(prefix: String, targetClass: Class<T>): T {
+        return applicationContext
+            .getBinder()
             .bind(prefix, targetClass)
             .orElseThrow { IllegalStateException("Could not bind properties under prefix '" + prefix + "' to " + targetClass.name) }
+    }
+
+    fun ApplicationContext.getBinder(): Binder{
+        try {
+            val binder = beanFactory.getBean("org.springframework.boot.context.internalConfigurationPropertiesBinder")
+            val getBinderMethod = binder::class.java.getDeclaredMethod("getBinder")
+            getBinderMethod.isAccessible = true
+            return getBinderMethod.invoke(binder) as Binder
+        }catch (e: Exception){
+            e.printStackTrace()
+            return Binder.get(applicationContext.environment)
+        }
     }
 }

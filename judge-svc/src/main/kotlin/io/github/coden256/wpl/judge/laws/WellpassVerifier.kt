@@ -9,7 +9,6 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.Duration
 import java.time.LocalDate
