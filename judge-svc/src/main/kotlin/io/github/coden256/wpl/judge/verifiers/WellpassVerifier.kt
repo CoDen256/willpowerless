@@ -20,8 +20,7 @@ import java.time.format.DateTimeFormatter
 class WellpassVerifier(
     private val wellpass: Wellpass,
 ) : Verifier<WellpassVerifier.Config>, Logging {
-    data class Config(val expiry: Duration,
-                      val cache: Duration) : VerifierConfig()
+    data class Config(val expiry: Duration, val cache: Duration) : VerifierConfig()
 
     override lateinit var config: Config
 
