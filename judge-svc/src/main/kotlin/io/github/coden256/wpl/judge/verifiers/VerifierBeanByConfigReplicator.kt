@@ -33,6 +33,7 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
         return bean
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun replicateBeanWithConfig(
         originalBean: Verifier<*>,
         originalBeanName: String,
@@ -43,9 +44,8 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
             .flatMap { it.arguments }
             .firstOrNull { it.type?.isSubtypeOf(VerifierConfig::class.createType()) == true }
             ?.type
-            ?.classifier as? KClass<*>
+            ?.classifier as? KClass<out VerifierConfig>
             ?: return
-
 
         verifierDefinitionProvider
             .getVerifierDefinitionsByClass(originalBean::class)
@@ -57,7 +57,8 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
                     beanClassName = originalDefinition.beanClassName
                     propertyValues.addPropertyValues(originalDefinition.propertyValues)
 
-                    val config = bindProperties(applicationContext.environment, definition.path, configClass.java)
+                    val config: VerifierConfig = bindProperties(applicationContext.environment, definition.path, configClass.java)
+                    config.definition = definition
                     propertyValues.add(Verifier<*>::config.name, config)
                 }
 

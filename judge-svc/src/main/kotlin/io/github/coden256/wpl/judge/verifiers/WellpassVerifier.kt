@@ -20,28 +20,20 @@ import java.time.format.DateTimeFormatter
 class WellpassVerifier(
     private val wellpass: Wellpass,
 ) : Verifier<WellpassVerifier.Config>, Logging {
-    data class Config(val expiry: Duration = Duration.ofDays(5),
-                      val cache: Duration = Duration.ofHours(24)): VerifierConfig
+    data class Config(val expiry: Duration,
+                      val cache: Duration) : VerifierConfig()
 
-    override var definition: VerifierDefinition? = null
-    override var config: Config = Config()
+    override lateinit var config: Config
 
-
-    var cache = config.cache
-
-    val checkins = Mono
-        .defer {
+    private val checkins by lazy { // MUST be lazy since config is initialized only after init method
+        Mono.defer {
             val today = LocalDate.now(ZoneId.of("CET"))
             logger.info("Requesting gym checkins as of ${LocalDateTime.now(ZoneId.of("CET")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}...")
             wellpass
                 .checkins(today.minusMonths(1), today)
                 .timeout(Duration.ofSeconds(60))
         }
-        .cache(config.cache)
-
-    @PostConstruct
-    fun init(){
-        cache = config.cache
+            .cache(config.cache)
     }
 
     override fun verify(): Mono<Success> {
@@ -50,7 +42,7 @@ class WellpassVerifier(
             .mapNotNull {
                 val last = it.checkIns.filter { isValidGym(it) }.maxByOrNull { it.checkInDate }
                 val expiry = last?.checkInDate?.plus(config.expiry) ?: LocalDateTime.MIN
-                if(!now.isAfter(expiry)) return@mapNotNull null
+                if (!now.isAfter(expiry)) return@mapNotNull null
 
                 Success(
                     expiry = expiry.atZone(ZoneId.of("CET")).toInstant(),
@@ -62,5 +54,4 @@ class WellpassVerifier(
     private fun isValidGym(it: CheckIn) =
         it.name.lowercase().contains("yoga|boulder|fitness first|kletter|fit/one".toRegex()) &&
                 it.name.lowercase().contains("leipzig|plagwitz".toRegex())
-
 }

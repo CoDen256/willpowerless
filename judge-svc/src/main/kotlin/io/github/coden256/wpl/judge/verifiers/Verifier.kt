@@ -83,11 +83,12 @@ data class VerifierDefinition(
 
 interface Verifier<C : VerifierConfig> {
     var config: C
-    var definition: VerifierDefinition?
     fun verify(): Mono<Success>
 }
 
-interface VerifierConfig
+abstract class VerifierConfig{
+    var definition: VerifierDefinition? = null
+}
 
 
 @Component
@@ -103,7 +104,7 @@ class TestVerifier(
 
     data class Config(
         val type: String? = null
-    ) : VerifierConfig
+    ) : VerifierConfig()
 }
 
 data class Success(
