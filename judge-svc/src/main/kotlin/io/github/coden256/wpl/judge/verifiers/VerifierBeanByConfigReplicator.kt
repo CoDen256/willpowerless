@@ -13,63 +13,56 @@ import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
 @Component
-class BeanReplicatorPostProcessor : BeanPostProcessor, ApplicationContextAware {
-
-    companion object {
-        val CONFIG_TYPE = VerifierConfig::class.createType()
-    }
-
+class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAware {
 
     private lateinit var applicationContext: ApplicationContext
-    private val beanFactory get() =  applicationContext.autowireCapableBeanFactory as DefaultListableBeanFactory
+    private lateinit var beanFactory: DefaultListableBeanFactory
+    private lateinit var verifierDefinitionProvider: VerifierDefinitionProvider
 
     override fun setApplicationContext(applicationContext: ApplicationContext) {
         this.applicationContext = applicationContext
+        this.beanFactory = applicationContext.autowireCapableBeanFactory as DefaultListableBeanFactory
+        this.verifierDefinitionProvider = applicationContext.getBean(VerifierDefinitionProvider::class.java)
     }
 
     override fun postProcessAfterInitialization(bean: Any, beanName: String): Any? {
         if (bean is Verifier<*>) {
-            replicateBeanWithConfig(bean, beanName, listOf(
-                "test.laws[0].verify[0]",
-                "test.laws[1].verify[0]",
-            ))
+            replicateBeanWithConfig(bean, beanName)
             return null
         }
         return bean
     }
 
-
     private fun replicateBeanWithConfig(
         originalBean: Verifier<*>,
         originalBeanName: String,
-        configurationsPath: List<String>
     ) {
         val originalDefinition = beanFactory.getBeanDefinition(originalBeanName)
         val configClass = originalBean::class
             .supertypes
-            .flatMap{it.arguments }
-            .firstOrNull { it.type?.isSubtypeOf(CONFIG_TYPE) == true }
+            .flatMap { it.arguments }
+            .firstOrNull { it.type?.isSubtypeOf(VerifierConfig::class.createType()) == true }
             ?.type
             ?.classifier as? KClass<*>
             ?: return
 
 
-        configurationsPath.forEachIndexed { index, path ->
-            val newBeanName = "${originalBeanName}_copy_$index"
-            
-            // Create a new bean definition based on the original
-            val beanDefinition = GenericBeanDefinition().apply {
-                beanClassName = originalDefinition.beanClassName
-                propertyValues.addPropertyValues(originalDefinition.propertyValues)
+        verifierDefinitionProvider
+            .getVerifierDefinitionsByClass(originalBean::class)
+            .forEachIndexed { index, definition ->
+                val newBeanName = "${originalBeanName}_${definition.parent}_${definition.index}"
 
-                val config = bindProperties(applicationContext.environment, path, configClass.java)
-                propertyValues.add(Verifier<*>::config.name, config)
+                // Create a new bean definition based on the original
+                val beanDefinition = GenericBeanDefinition().apply {
+                    beanClassName = originalDefinition.beanClassName
+                    propertyValues.addPropertyValues(originalDefinition.propertyValues)
+
+                    val config = bindProperties(applicationContext.environment, definition.path, configClass.java)
+                    propertyValues.add(Verifier<*>::config.name, config)
+                }
+
+                beanFactory.registerBeanDefinition(newBeanName, beanDefinition)
             }
-
-            
-            // Register the new bean
-            beanFactory.registerBeanDefinition(newBeanName, beanDefinition)
-        }
         beanFactory.removeBeanDefinition(originalBeanName)
     }
 
@@ -77,10 +70,6 @@ class BeanReplicatorPostProcessor : BeanPostProcessor, ApplicationContextAware {
         applicationContext.environment
         return Binder.get(environment)
             .bind(prefix, targetClass)
-            .orElseThrow {
-                IllegalStateException(
-                    "Could not bind properties under prefix '" + prefix + "' to " + targetClass.name
-                )
-            }
+            .orElseThrow { IllegalStateException("Could not bind properties under prefix '" + prefix + "' to " + targetClass.name) }
     }
 }

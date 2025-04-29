@@ -1,8 +1,8 @@
-test.laws:
+judge.laws:
   - name: "Allow home office"
     description: Allow internet access during home office hours
     verify:
-      - type: "ScheduleVerifier"
+      - type: "TestVerifier"
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
         timeRange: 08:00 - 16:00
     out:
@@ -11,7 +11,7 @@ test.laws:
   - name: "Allow Restoration"
     description: Allow everything in order to rest and recover in case of sickness or vacation
     verify:
-      - type: CalenderAbsenceVerifier
+      - type: TestVerifier
         expiryToDurationRate: 1.8 # 1.8 (e.g. 10 days absence -> +10/1.8 ~ +5.5 days expiry)
         maxExpiry: 7d
         minExpiry: 0d
@@ -21,7 +21,7 @@ test.laws:
   - name: "Allow Night Access"
     description: Allow night access, since its unlikely to get abused
     verify:
-      - type: ScheduleVerifier
+      - type: TestVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
         timeRange: 00:00 - 09:00
     out:

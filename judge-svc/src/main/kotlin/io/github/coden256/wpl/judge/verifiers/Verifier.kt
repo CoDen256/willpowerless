@@ -6,6 +6,7 @@ import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.Instant
+import kotlin.reflect.KClass
 
 
 class JudgeLaw(
@@ -14,68 +15,84 @@ class JudgeLaw(
     private val description: String?,
     private val rulings: List<LawRuling>,
     private val priority: Int
-){
+)
 
+
+interface VerifierDefinitionProvider {
+    fun getVerifierDefinitions(): Map<String, List<VerifierDefinition>>
+    fun getVerifierDefinitionsByClass(`class`: KClass<*>): List<VerifierDefinition>
 }
 
+private const val PREFIX = "judge"
 
-
-private const val PREFIX = "test"
 @ConfigurationProperties(PREFIX)
-data class LawsConfigurationProperties(
-    private val laws: List<LawsConfigurationPropertiesEntry>
-){
-//    fun toJudgeLaws(environment: Environment): List<JudgeLaw> {
-//        return laws.mapIndexed{index, entry ->
-//            JudgeLaw(
-//                getVerifiers(environment, entry.verify ?: listOf(), index),
-//                entry.name,
-//                entry.description,
-//                listOf(),
-//                index
-//            )
-//        }
-//    }
-//
-//    fun getVerifiers(environment: Environment, verifiers: List<ReducedVerifierInfo>, index: Int): List<Verifier>{
-//        val path = PREFIX + ::laws.name + "[$index].verify"
-//        return verifiers.mapIndexed { vIndex, info -> getVerifier(path, environment, info, vIndex) }
-//    }
-//
-//    fun getVerifier(prefix: String, environment: Environment, info: ReducedVerifierInfo, index: Int): Verifier {
-//        val path = "$prefix[$index]"
-//        val type = info.type
-//        val typeCfg = info.type + ".Config"
-//        return bindProperties()
-//    }
-//
+data class MultipleLawsProperties(
+    private val laws: List<LawProperties>
+) : VerifierDefinitionProvider {
 
+    private val definitions = loadDefinitions()
 
+    private fun loadDefinitions(): Map<String, List<VerifierDefinition>> {
+        return laws.flatMapIndexed { index, law -> getVerifierDefinitions(law, index) }
+            .groupBy { it.type }
+    }
+
+    private fun getVerifierDefinitions(
+        parent: LawProperties,
+        parentIndex: Int
+    ): List<VerifierDefinition> {
+        val definitions = parent.verify ?: return emptyList()
+        val definitionPath: (Int) -> String = {
+            "$PREFIX.${::laws.name}[$parentIndex].${LawProperties::verify.name}[$it]"
+        }
+
+        return definitions.mapIndexed { index, it ->
+            VerifierDefinition(
+                it.type,
+                definitionPath(index),
+                parent.name,
+                index
+            )
+        }
+    }
+
+    override fun getVerifierDefinitions(): Map<String, List<VerifierDefinition>> {
+        return definitions
+    }
+
+    override fun getVerifierDefinitionsByClass(`class`: KClass<*>): List<VerifierDefinition> {
+        return definitions[`class`.simpleName] ?: emptyList()
+    }
 }
 
-
-
-data class LawsConfigurationPropertiesEntry(
+data class LawProperties(
     val description: String,
     val name: String,
     val enabled: Boolean = true,
-    val verify: List<ReducedVerifierInfo>? = null
+    val verify: List<ReducedVerifierDefinition>? = null
+) {
+    data class ReducedVerifierDefinition(val type: String)
+}
+
+data class VerifierDefinition(
+    val type: String,
+    val path: String,
+    val parent: String,
+    val index: Int
 )
 
-data class ReducedVerifierInfo(val type: String)
-
-interface Verifier<C: VerifierConfig>  {
+interface Verifier<C : VerifierConfig> {
     var config: C
     fun verify(): Mono<Success>
 }
 
-interface VerifierConfig{
-    val type: String?
-}
+interface VerifierConfig
 
 
 @Component
-class TestVerifier(env: Environment): Verifier<TestVerifier.Config> {
+class TestVerifier(
+    val env: Environment
+) : Verifier<TestVerifier.Config> {
 
     override var config: Config = Config()
 
@@ -84,8 +101,8 @@ class TestVerifier(env: Environment): Verifier<TestVerifier.Config> {
     }
 
     data class Config(
-        override val type: String?=TestVerifier::class.simpleName
-    ): VerifierConfig
+        val type: String? = null
+    ) : VerifierConfig
 }
 
 data class Success(
