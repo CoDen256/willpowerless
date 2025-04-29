@@ -22,7 +22,7 @@ class JudgeConfiguration {
 
     @Bean
     fun stuff(laws: LawsConfigurationProperties, environment: Environment): Any{
-        bindProperties(environment, "test.laws", LawsConfigurationProperties::class.java)
+//        bindProperties(environment, "test.laws", LawsConfigurationProperties::class.java)
         return laws
     }
 }
