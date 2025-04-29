@@ -3,6 +3,7 @@ package io.github.coden256.wpl.judge
 import io.github.coden256.wpl.judge.verifiers.BeanReplicatorPostProcessor
 import io.github.coden256.wpl.judge.verifiers.LawsConfigurationProperties
 import io.github.coden256.wpl.judge.verifiers.TestVerifier
+import io.github.coden256.wpl.judge.verifiers.Verifier
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -20,6 +21,9 @@ class VerifierTest {
 
     @Autowired
     lateinit var laws: LawsConfigurationProperties
+
+    @Autowired
+    lateinit var list: List<Verifier<*>>
     @Test
     fun test() {
         env

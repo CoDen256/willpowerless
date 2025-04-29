@@ -49,15 +49,7 @@ data class LawsConfigurationProperties(
 //        return bindProperties()
 //    }
 //
-//    fun <T> bindProperties(environment: Environment, prefix: String, targetClass: Class<T>): T {
-//        return Binder.get(environment)
-//            .bind(prefix, targetClass)
-//            .orElseThrow {
-//                IllegalStateException(
-//                    "Could not bind properties under prefix '" + prefix + "' to " + targetClass.name
-//                )
-//            }
-//    }
+
 
 }
 
