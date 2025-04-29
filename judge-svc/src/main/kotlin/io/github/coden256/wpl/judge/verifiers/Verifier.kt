@@ -1,5 +1,6 @@
 package io.github.coden256.wpl.judge.verifiers
 
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.Instant
 import kotlin.reflect.KClass

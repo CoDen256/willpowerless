@@ -1,7 +1,8 @@
 package io.github.coden256.wpl.judge
 
 import io.github.coden256.wellpass.config.WellpassConfiguration
-import io.github.coden256.wpl.judge.config.MultipleLawProperties
+import io.github.coden256.wpl.judge.config.*
+import io.github.coden256.wpl.judge.laws.JudgeLawProvider
 import io.github.coden256.wpl.judge.verifiers.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,15 +26,18 @@ class VerifierTest {
     @Autowired
     lateinit var verifierDefinitionProvider: VerifierDefinitionProvider
 
+    @Autowired
+    lateinit var judgeLawProvider: JudgeLawProvider
+
     @Test
     fun test(@Autowired list: List<Verifier<*>>?) {
         env
     }
 
     @Configuration
-    @EnableConfigurationProperties(MultipleLawProperties::class)
+    @EnableConfigurationProperties(MultipleLawProperties::class, RulingProperties::class)
     @Import(*[VerifierBeanByConfigReplicator::class, WellpassVerifier::class,
         WellpassConfiguration::class, ScheduleVerifier::class, CalenderAbsenceVerifier::class,
-        LocalTimeRangeConverter::class])
+        LocalTimeRangeConverter::class, JudgeLawProvider::class, ConfigurationPropertiesRulingRegistry::class])
     class Config
 }
