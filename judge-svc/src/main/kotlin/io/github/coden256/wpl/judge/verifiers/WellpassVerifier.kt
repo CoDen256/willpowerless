@@ -3,7 +3,9 @@ package io.github.coden256.wpl.judge.verifiers
 import io.github.coden256.wellpass.CheckIn
 import io.github.coden256.wellpass.Wellpass
 import io.github.coden256.wellpass.config.WellpassConfiguration
-import jakarta.annotation.PostConstruct
+import io.github.coden256.wpl.judge.verifiers.api.Success
+import io.github.coden256.wpl.judge.verifiers.api.Verifier
+import io.github.coden256.wpl.judge.verifiers.api.VerifierConfig
 import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component

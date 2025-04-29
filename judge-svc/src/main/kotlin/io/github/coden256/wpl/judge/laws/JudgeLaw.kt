@@ -1,7 +1,7 @@
 package io.github.coden256.wpl.judge.laws
 
 import io.github.coden256.wpl.judge.core.LawRuling
-import io.github.coden256.wpl.judge.verifiers.Verifier
+import io.github.coden256.wpl.judge.verifiers.api.Verifier
 
 class JudgeLaw(
     private val verifiers: List<Verifier<*>>,

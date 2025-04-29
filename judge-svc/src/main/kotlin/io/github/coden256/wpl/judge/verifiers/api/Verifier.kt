@@ -1,4 +1,4 @@
-package io.github.coden256.wpl.judge.verifiers
+package io.github.coden256.wpl.judge.verifiers.api
 
 import reactor.core.publisher.Mono
 import java.time.Instant

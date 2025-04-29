@@ -1,4 +1,4 @@
-package io.github.coden256.wpl.judge.verifiers
+package io.github.coden256.wpl.judge.verifiers.api
 
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.beans.factory.support.DefaultListableBeanFactory

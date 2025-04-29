@@ -1,12 +1,10 @@
 package io.github.coden256.wpl.judge.config
 
-import io.github.coden256.wpl.judge.verifiers.VerifierDefinition
-import io.github.coden256.wpl.judge.verifiers.VerifierDefinitionProvider
+import io.github.coden256.wpl.judge.verifiers.api.VerifierDefinition
+import io.github.coden256.wpl.judge.verifiers.api.VerifierDefinitionProvider
 import org.springframework.boot.context.properties.ConfigurationProperties
-import kotlin.reflect.KClass
 
 private const val PREFIX = "judge"
-
 @ConfigurationProperties(PREFIX)
 data class MultipleLawProperties(
     private val laws: List<LawProperties>

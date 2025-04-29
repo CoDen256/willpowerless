@@ -1,8 +1,13 @@
 package io.github.coden256.wpl.judge
 
 import io.github.coden256.wellpass.config.WellpassConfiguration
-import io.github.coden256.wpl.judge.config.JudgeConfiguration
-import io.github.coden256.wpl.judge.verifiers.*
+import io.github.coden256.wpl.judge.config.MultipleLawProperties
+import io.github.coden256.wpl.judge.verifiers.CalenderAbsenceVerifier
+import io.github.coden256.wpl.judge.verifiers.ScheduleVerifier
+import io.github.coden256.wpl.judge.verifiers.api.Verifier
+import io.github.coden256.wpl.judge.verifiers.api.VerifierBeanByConfigReplicator
+import io.github.coden256.wpl.judge.verifiers.api.VerifierDefinitionProvider
+import io.github.coden256.wpl.judge.verifiers.WellpassVerifier
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -20,7 +25,7 @@ class VerifierTest {
     lateinit var env: Environment
 
     @Autowired
-    lateinit var laws: MultipleLawsProperties
+    lateinit var laws: MultipleLawProperties
 
     @Autowired
     lateinit var verifierDefinitionProvider: VerifierDefinitionProvider
@@ -31,9 +36,8 @@ class VerifierTest {
     }
 
     @Configuration
-    @EnableConfigurationProperties(MultipleLawsProperties::class)
-    @Import(*[VerifierBeanByConfigReplicator::class, WellpassVerifier::class, WellpassConfiguration::class])
-    class Config {
-
-    }
+    @EnableConfigurationProperties(MultipleLawProperties::class)
+    @Import(*[VerifierBeanByConfigReplicator::class, WellpassVerifier::class,
+        WellpassConfiguration::class, ScheduleVerifier::class, CalenderAbsenceVerifier::class])
+    class Config
 }
