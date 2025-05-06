@@ -1,12 +1,19 @@
 package io.github.coden256.wpl.judge.config
 
-import io.github.coden256.wpl.judge.verifiers.VerifierDefinition
-import io.github.coden256.wpl.judge.verifiers.VerifierDefinitionProvider
+import io.github.coden256.wpl.judge.core.VerifierDefinition
+import io.github.coden256.wpl.judge.core.VerifierDefinitionProvider
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConfigurationPropertiesBinding
+import org.springframework.boot.context.properties.bind.Binder
+import org.springframework.core.convert.converter.Converter
+import org.springframework.core.env.Environment
+import org.springframework.stereotype.Component
 
-private const val PREFIX = "laws"
-@ConfigurationProperties(PREFIX)
+
+// TODO ROLE_INFRASTRUCTURE
+@ConfigurationProperties(MultipleLawProperties.PREFIX)
 class MultipleLawProperties : ArrayList<LawProperties>(), VerifierDefinitionProvider {
+    companion object { const val PREFIX = "laws" }
 
     private val definitions = loadDefinitions()
 
@@ -43,12 +50,45 @@ data class LawProperties(
     val name: String,
     val enabled: Boolean = true,
     val verify: List<ReducedVerifierDefinition>? = null,
-    val out: List<Rule>
+    val out: List<RulingSet>
 ) {
     data class ReducedVerifierDefinition(val type: String)
 }
 
-data class Rule(
+@ConfigurationProperties(MultipleRulingProperties.PREFIX)
+class MultipleRulingProperties: ArrayList<RulingSet>() {
+    companion object { const val PREFIX = "rules" }
+}
+
+data class RulingSet(
     val block: List<String>,
     val force: List<String>
-)
+){
+    companion object {
+        fun List<RulingSet>.merge(): RulingSet{
+            return RulingSet(
+                flatMap { it.block },
+                flatMap { it.force }
+            )
+        }
+    }
+}
+
+@ConfigurationPropertiesBinding
+@Component
+class RuleConverter(val environment: Environment): Converter<String, RulingSet> {
+    override fun convert(source: String): RulingSet {
+        try {
+            return parseEntry(source)
+        } catch (e: Exception) {
+            throw Exception("app.callback-mappings property is invalid. Must be a JSON object string")
+        }
+    }
+
+    private fun parseEntry(name: String): RulingSet {
+        return Binder
+            .get(environment)
+            .bind(MultipleRulingProperties.PREFIX+"."+name, RulingSet::class.java)
+            .get()
+    }
+}

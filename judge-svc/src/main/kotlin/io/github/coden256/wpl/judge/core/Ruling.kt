@@ -3,11 +3,13 @@ package io.github.coden256.wpl.judge.core
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import java.time.Instant
 
 
 class RulingTree {
     private val children = mutableMapOf<String, RulingTree>()
     private var ruling: Ruling? = null
+    val added = mutableMapOf<String, Ruling>()
 
 
     override fun toString(): String {
@@ -22,6 +24,7 @@ class RulingTree {
     fun add(path: String, ruling: Ruling) {
         val parts = path.split('/').filter { it.isNotEmpty() }
         add(parts, ruling)
+        added[path] = ruling
     }
 
     fun get(path: String, mapper: ObjectMapper = ObjectMapper()): JsonNode {
@@ -95,12 +98,19 @@ class RulingTree {
     }
 }
 
-data class Ruling(val action: Action, val reason: String? = null){
+data class Ruling(val action: Action,
+                  val reason: String? = null,
+                  val priority: Int = Int.MAX_VALUE,
+                  val expiry: Instant = Instant.MAX,
+
+                  ){
 
     fun json(mapper: ObjectMapper = ObjectMapper()): JsonNode {
         val node = mapper.createObjectNode()
 
         node.put("action", action.toString())
+        node.put("priority", priority)
+        node.put("expiry", expiry.toString())
 
         reason?.let { node.put("reason", it) }
 
@@ -108,6 +118,8 @@ data class Ruling(val action: Action, val reason: String? = null){
     }
 
     fun merge(new: Ruling): Ruling{
+        if (new.priority != priority) return listOf(this, new).minBy { it.priority }
+
         return when{
             this.action == new.action  -> Ruling(action, reason + " && " + new.reason)
             this.action == Action.ALLOW -> new

@@ -3,6 +3,9 @@ package io.github.coden256.wpl.judge.verifiers
 import io.github.coden256.wellpass.CheckIn
 import io.github.coden256.wellpass.Wellpass
 import io.github.coden256.wellpass.config.WellpassConfiguration
+import io.github.coden256.wpl.judge.core.Success
+import io.github.coden256.wpl.judge.core.Verifier
+import io.github.coden256.wpl.judge.core.VerifierConfig
 import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
@@ -28,8 +31,7 @@ class WellpassVerifier(
             wellpass
                 .checkins(today.minusMonths(1), today)
                 .timeout(Duration.ofSeconds(60))
-        }
-            .cache(config.cache)
+            }.cache(config.cache)
     }
 
     override fun verify(): Mono<Success> {

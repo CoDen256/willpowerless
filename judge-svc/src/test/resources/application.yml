@@ -1,18 +1,12 @@
-define: &ruling2
-  force:
-    - /dev/openwrt/access/${dev.mi0}
-  block:
-    - "stuff"
-
 laws:
-  - name: "Allow home office"
+  - name: "✅ Allow home office"
     description: Allow internet access during home office hours
     verify:
       - type: "ScheduleVerifier"
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
         timeRange: 08:00 - 16:00
     out:
-      - *ruling2
+      - ${rules.ruling2.ref}
 
   - name: "Allow Restoration"
     description: Allow everything in order to rest and recover in case of sickness or vacation
@@ -42,7 +36,7 @@ laws:
         timeRange: 00:00 - 09:00
     out: []
 
-  - name: "Force Gym"
+  - name: "⛔ Force Gym"
     description: Force regular gym visits
     verify:
       - type: WellpassVerifier
@@ -62,21 +56,26 @@ laws:
     description: "Prohibit overconsumption of A"
     out: []
 
-  - name: "Moderate Social"
+  - name: "🟡 Moderate Social"
     description: "Prohibit overconsumption of social media and brain rotting"
     out: []
 
+
+rules:
+  ruling2:
+    ref: ruling2
+    force:
+      - /dev/openwrt/access/${dev.mi0}
+    block:
+      - "stuff"
+
+
 dev:
-  mi0: "34:1C:F0:CD:FA:E8"
-  mi1: "C2:F2:57:9C:EE:27"
-  thinkpad: "10:6F:D9:A0:1C:D1"
-  deimos0: "0A:DF:73:F0:9D:8B"
-  deimos1: "00:C0:CA:AD:D0:23"
-  proj: "DC:A3:A2:08:14:56"
+  mi0: "belo"
 
 api:
   wellpass:
-    host: https://qualitrain.netpulse.com
+    host: https://blabla
     auth:
       password: "p"
       username: "u"

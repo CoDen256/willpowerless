@@ -1,19 +1,30 @@
 package io.github.coden256.wpl.judge.config
 
-import io.github.coden256.calendar.ICSCalendar
-import io.github.coden256.calendar.api.Calendar
-import org.springframework.beans.factory.annotation.Value
+import io.github.coden256.wpl.judge.config.RulingSet.Companion.merge
+import io.github.coden256.wpl.judge.core.Law
+import io.github.coden256.wpl.judge.core.Verifier
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-
 @Configuration
-@EnableConfigurationProperties(MultipleLawProperties::class)
+@EnableConfigurationProperties(MultipleLawProperties::class, MultipleRulingProperties::class)
 class JudgeConfiguration {
+
     @Bean
-    fun calendar(@Value("\${api.calendar.ics}") url: String): Calendar {
-        return ICSCalendar(url)
+    fun laws(properties: MultipleLawProperties, verifiers: List<Verifier<*>>): List<Law> {
+        val verifiersByParent = verifiers.groupBy { it.definition.parent }
+
+        return properties.mapIndexed { index, lawDefinition ->
+            Law(
+                lawDefinition.name,
+                verifiersByParent[lawDefinition.name] ?: emptyList(),
+                lawDefinition.out.merge(),
+                lawDefinition.description,
+                index,
+                lawDefinition.enabled
+            )
+        }
     }
 }
 

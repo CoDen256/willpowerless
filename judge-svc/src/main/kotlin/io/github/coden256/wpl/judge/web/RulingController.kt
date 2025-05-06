@@ -1,12 +1,11 @@
 package io.github.coden256.wpl.judge.web
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.github.coden256.wpl.judge.Judge
+import io.github.coden256.wpl.judge.core.Judge
 import org.springframework.http.ResponseEntity
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 
 //@RestController
@@ -18,10 +17,10 @@ class RulingController(
     @GetMapping("/**")
     fun getRuling(request: ServerHttpRequest): Mono<ResponseEntity<JsonNode>> {
         return judge
-            .rulings()
-            .map {
+            .verify()
+            .map { tree ->
                 val path = extractPathFromRequest(request)
-                val result = it.get(path)
+                val result = tree.get(path)
                 if (result.isNull) {
                     ResponseEntity.notFound().build()
                 } else {

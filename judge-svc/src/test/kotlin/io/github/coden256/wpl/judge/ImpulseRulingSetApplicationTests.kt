@@ -9,7 +9,7 @@ import java.time.LocalDate
 import kotlin.test.assertTrue
 
 @SpringBootTest
-class ImpulseRuleApplicationTests {
+class ImpulseRulingSetApplicationTests {
 
     @Autowired
     lateinit var api: Wellpass

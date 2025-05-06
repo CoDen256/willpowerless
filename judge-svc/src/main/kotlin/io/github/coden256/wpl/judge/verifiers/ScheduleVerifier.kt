@@ -1,5 +1,8 @@
 package io.github.coden256.wpl.judge.verifiers
 
+import io.github.coden256.wpl.judge.core.Success
+import io.github.coden256.wpl.judge.core.Verifier
+import io.github.coden256.wpl.judge.core.VerifierConfig
 import org.apache.commons.lang3.Range
 import org.springframework.boot.context.properties.ConfigurationPropertiesBinding
 import org.springframework.core.convert.converter.Converter
@@ -15,8 +18,25 @@ class ScheduleVerifier: Verifier<ScheduleVerifier.Config>() {
                       val negate: Boolean = false): VerifierConfig
 
     override fun verify(): Mono<Success> {
+//        val current = LocalDateTime.now(ZoneId.of("CET"))
+//        val enabled = config.schedule.any { it.matches(current) } || config.schedule.isEmpty()
+//        val reason = if (config.schedule.isNotEmpty()) ": checking schedule=${config.schedule}" else ""
+//        return Mono.just(
+//            Verdict(
+//                rulings(),
+//                enabled = enabled,
+//                expires = LocalDateTime.MAX,
+//                reason = config.description +  reason,
+//                law = name
+//            )
+//        )
         TODO("Not yet implemented")
     }
+
+//    fun matches(current: LocalDateTime): Boolean {
+//        val match = timeRange.contains(current.toLocalTime()) && daysOfWeek.contains(current.dayOfWeek)
+//        return (match && !negate) || (!match && negate)
+//    }
 }
 
 @ConfigurationPropertiesBinding

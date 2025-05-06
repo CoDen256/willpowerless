@@ -2,7 +2,7 @@ package io.github.coden256.wpl.judge
 
 import org.junit.jupiter.api.Test
 
-class WellpassRuleTest {
+class WellpassRulingSetTest {
 
     @Test
     fun test() {

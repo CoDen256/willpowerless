@@ -1,5 +1,8 @@
 package io.github.coden256.wpl.judge.verifiers
 
+import io.github.coden256.wpl.judge.core.Verifier
+import io.github.coden256.wpl.judge.core.VerifierConfig
+import io.github.coden256.wpl.judge.core.VerifierDefinitionProvider
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.beans.factory.support.DefaultListableBeanFactory
 import org.springframework.beans.factory.support.GenericBeanDefinition
@@ -73,7 +76,7 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
             .orElseThrow { IllegalStateException("Could not bind properties under prefix '" + prefix + "' to " + targetClass.name) }
     }
 
-    fun ApplicationContext.getBinder(): Binder{
+    fun ApplicationContext.getBinder(): Binder {
         try {
             val binder = beanFactory.getBean("org.springframework.boot.context.internalConfigurationPropertiesBinder")
             val getBinderMethod = binder::class.java.getDeclaredMethod("getBinder")
