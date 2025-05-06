@@ -15,7 +15,7 @@ class JudgeConfiguration {
     fun laws(properties: MultipleLawProperties, verifiers: List<Verifier<*>>): List<Law> {
         val verifiersByParent = verifiers.groupBy { it.definition.parent }
 
-        return properties.mapIndexed { index, lawDefinition ->
+        return properties.laws.mapIndexed { index, lawDefinition ->
             Law(
                 lawDefinition.name,
                 verifiersByParent[lawDefinition.name] ?: emptyList(),

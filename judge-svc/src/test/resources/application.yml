@@ -1,4 +1,4 @@
-laws:
+judge.laws:
   - name: "✅ Allow home office"
     description: Allow internet access during home office hours
     verify:
@@ -6,7 +6,7 @@ laws:
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
         timeRange: 08:00 - 16:00
     out:
-      - ${rules.ruling2.ref}
+      - ${judge.rules.ruling2.ref}
 
   - name: "Allow Restoration"
     description: Allow everything in order to rest and recover in case of sickness or vacation
@@ -61,7 +61,7 @@ laws:
     out: []
 
 
-rules:
+judge.rules:
   ruling2:
     ref: ruling2
     force:
