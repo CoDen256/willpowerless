@@ -1,3 +1,4 @@
 .attach_pid*
 *.db.*
 *.db
+.idea/jarRepositories.xml

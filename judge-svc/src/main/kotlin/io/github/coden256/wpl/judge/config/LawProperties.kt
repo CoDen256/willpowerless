@@ -1,14 +1,8 @@
 package io.github.coden256.wpl.judge.config
 
-import io.github.coden256.wpl.judge.core.Ruling
 import io.github.coden256.wpl.judge.verifiers.VerifierDefinition
 import io.github.coden256.wpl.judge.verifiers.VerifierDefinitionProvider
-import org.apache.commons.lang3.Range
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConfigurationPropertiesBinding
-import org.springframework.core.convert.converter.Converter
-import org.springframework.stereotype.Component
-import java.time.LocalTime
 
 private const val PREFIX = "judge"
 @ConfigurationProperties(PREFIX)

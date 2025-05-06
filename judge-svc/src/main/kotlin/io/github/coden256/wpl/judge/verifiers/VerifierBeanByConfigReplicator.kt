@@ -57,8 +57,8 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
                     propertyValues.addPropertyValues(originalDefinition.propertyValues)
 
                     val config: VerifierConfig = bindProperties(definition.path, configClass.java)
-                    config.definition = definition
                     propertyValues.add(Verifier<*>::config.name, config)
+                    propertyValues.add(Verifier<*>::definition.name, definition)
                 }
 
                 beanFactory.registerBeanDefinition(newBeanName, beanDefinition)

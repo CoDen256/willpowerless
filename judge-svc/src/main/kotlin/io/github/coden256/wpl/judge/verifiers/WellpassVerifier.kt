@@ -18,10 +18,8 @@ import java.time.format.DateTimeFormatter
 @Import(WellpassConfiguration::class)
 class WellpassVerifier(
     private val wellpass: Wellpass,
-) : Verifier<WellpassVerifier.Config>, Logging {
-    data class Config(val expiry: Duration, val cache: Duration) : VerifierConfig()
-
-    override lateinit var config: Config
+) : Verifier<WellpassVerifier.Config>(), Logging {
+    data class Config(val expiry: Duration, val cache: Duration) : VerifierConfig
 
     private val checkins by lazy { // MUST be lazy since config is initialized only after init method
         Mono.defer {

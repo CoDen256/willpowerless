@@ -9,12 +9,10 @@ import java.time.DayOfWeek
 import java.time.LocalTime
 
 @Component
-class ScheduleVerifier: Verifier<ScheduleVerifier.Config> {
+class ScheduleVerifier: Verifier<ScheduleVerifier.Config>() {
     data class Config(val timeRange: Range<LocalTime>,
                       val daysOfWeek: List<DayOfWeek>,
-                      val negate: Boolean = false): VerifierConfig()
-
-    override lateinit var config: Config
+                      val negate: Boolean = false): VerifierConfig
 
     override fun verify(): Mono<Success> {
         TODO("Not yet implemented")

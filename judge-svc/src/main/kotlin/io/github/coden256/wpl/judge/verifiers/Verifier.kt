@@ -1,18 +1,16 @@
 package io.github.coden256.wpl.judge.verifiers
 
-import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.Instant
 import kotlin.reflect.KClass
 
-interface Verifier<C : VerifierConfig> {
-    var config: C
-    fun verify(): Mono<Success>
+abstract class Verifier<C : VerifierConfig> {
+    lateinit var config: C
+    lateinit var definition: VerifierDefinition
+    abstract fun verify(): Mono<Success>
 }
 
-abstract class VerifierConfig{
-    var definition: VerifierDefinition? = null
-}
+interface VerifierConfig
 
 interface VerifierDefinitionProvider {
     fun getVerifierDefinitions(): List<VerifierDefinition>

@@ -6,11 +6,11 @@ import io.github.coden256.wpl.judge.core.LawRuling
 import io.github.coden256.wpl.judge.verifiers.Verifier
 import org.springframework.stereotype.Component
 
-class JudgeLaw(
-    private val verifiers: List<Verifier<*>>,
+data class JudgeLaw(
     private val name: String,
-    private val description: String?,
+    private val verifiers: List<Verifier<*>>,
     private val rulings: List<LawRuling>,
+    private val description: String?,
     private val priority: Int
 ){
 
@@ -23,14 +23,18 @@ class JudgeLawProvider(
     private val registry: RulingRegistry
 ){
 
+    init {
+        properties
+    }
+
     fun get(): List<JudgeLaw> {
-        val verifiersByParent = verifiers.groupBy { it.config.definition?.parent }
+        val verifiersByParent = verifiers.groupBy { it.definition.parent }
         return properties.laws.mapIndexed { index, law ->
             JudgeLaw(
-                verifiersByParent.get(law.name) ?: emptyList(),
                 law.name,
-                law.description,
+                verifiersByParent[law.name] ?: emptyList(),
                 registry.getRules(law.out),
+                law.description,
                 index
             )
         }
