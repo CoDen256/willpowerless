@@ -1,12 +1,12 @@
 law.def:
-  - name: "✅!! Allow home office"
+  - name: "✅ Allow home office"
     description: Allow internet access during home office hours
     verify:
       - type: "ScheduleVerifier"
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
         timeRange: 08:00 - 19:00
     out:
-      - ${rule.def.ENABLE_HOME_ACCESS.ref}
+      - ${rule.def.enable-home-access.ref}
 
   - name: "✅ Allow Restoration"
     description: Allow everything in order to rest and recover in case of sickness or vacation
@@ -37,7 +37,7 @@ law.def:
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
         timeRange: 00:00 - 09:00
     out:
-      - ${rule.def.ENABLE_BEAMER.ref}
+      - ${rule.def.enable-beamer.ref}
 
   - name: "⛔ Force Gym"
     description: Force regular gym visits
@@ -46,7 +46,7 @@ law.def:
         expiry: 5d
         cache: 1h
     out:
-      - ${rule.def.DISABLE_HOME_ACCESS.ref}
+      - ${rule.def.disable-home-access.ref}
 
   - name: "⛔ Force Breaks"
     description: Force regular breaks from computer/phone
@@ -56,18 +56,20 @@ law.def:
         timeRange: 08:00 - 18:00
         negate: true
     out:
-      - ${rule.def.ENABLE_HOME_ACCESS.ref}
+      - ${rule.def.enable-home-access.ref}
 
   - name: "🟡 Moderate A"
     description: "Prohibit overconsumption of A"
     out:
-      - ${rule.def.SAFE_HOME_BROWSING.ref}
-      - ${rule.def.ENABLE_VPN.ref}
-      - ${rule.def.SAFE_PHONE_BROWSING.ref}
+      - ${rule.def.safe-home-browsing.ref}
+      - ${rule.def.enable-vpn.ref}
+      - ${rule.def.safe-phone-browsing.ref}
 
   - name: "🟡 Moderate Social"
     description: "Prohibit overconsumption of social media and brain rotting"
     out:
-      - ${rule.def.ENABLE_VPN.ref}
-      - ${rule.def.BLOCK_SOCIAL.ref}
-      - ${rule.def.ALLOW_PLAIN_TELEGRAM.ref}
+      - ${rule.def.enable-vpn.ref}
+      - ${rule.def.block-social.ref}
+
+      - ${rule.def.allow-plain-telegram.ref}
+      - ${rule.def.block-telegram-apps.ref}

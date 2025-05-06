@@ -1,6 +1,6 @@
 rule.def:
-  DISABLE_HOME_ACCESS:
-    ref: DISABLE_HOME_ACCESS
+  disable-home-access:
+    ref: disable-home-access
     block:
       - /dev/openwrt/access/${dev.mi0}
       - /dev/openwrt/access/${dev.mi1}
@@ -9,8 +9,8 @@ rule.def:
       - /dev/openwrt/access/${dev.deimos1}
       - /dev/openwrt/access/${dev.proj}
 
-  ENABLE_HOME_ACCESS:
-    ref: ENABLE_HOME_ACCESS
+  enable-home-access:
+    ref: enable-home-access
     force:
       - /dev/openwrt/access/${dev.mi0}
       - /dev/openwrt/access/${dev.mi1}
@@ -19,48 +19,42 @@ rule.def:
       - /dev/openwrt/access/${dev.deimos1}
       - /dev/openwrt/access/${dev.proj}
 
-  ENABLE_BEAMER:
-    ref: ENABLE_BEAMER
+  enable-beamer:
+    ref: enable-beamer
     force:
       - /dev/openwrt/access/${dev.proj}
 
-  SAFE_HOME_BROWSING:
-    ref: SAFE_HOME_BROWSING
+  safe-home-browsing:
+    ref: safe-home-browsing
     force:
       - /dev/openwrt/dns/208.67.222.123
       - /dev/openwrt/dns/208.67.220.123
 
-  UNSAFE_HOME_BROWSING:
-    ref: UNSAFE_HOME_BROWSING
-    force:
-      - /dev/openwrt/dns/8.8.8.8
-      - /dev/openwrt/dns/8.8.4.4
-
-  ALTERNATIVE_SAFE_HOME_BROWSING:
-    ref: ALTERNATIVE_SAFE_HOME_BROWSING
+  alternative-safe-home-browsing:
+    ref: alternative-safe-home-browsing
     force:
       - /dev/openwrt/dns/208.67.222.222
       - /dev/openwrt/dns/208.67.220.220
 
+  unsafe-home-browsing:
+    ref: unsafe-home-browsing
+    force:
+      - /dev/openwrt/dns/8.8.8.8
+      - /dev/openwrt/dns/8.8.4.4
 
-  ENABLE_VPN:
-    ref: ENABLE_VPN
+  enable-vpn:
+    ref: enable-vpn
     force:
       - /dev/mi/apps/com.celzero.bravedns # prevent uninstall of vpn
       - /dev/mi/vpn/com.celzero.bravedns # always on vpn
 
-  SAFE_PHONE_BROWSING:
-    ref: SAFE_PHONE_BROWSING
+  safe-phone-browsing:
+    ref: safe-phone-browsing
     force:
       - /dev/mi/apps/com.celzero.bravedns/dns/1-bdaacaaaeaaia
 
-  DISABLE_MOBILE_DATA:
-    ref: DISABLE_MOBILE_DATA
-    block:
-      - /dev/mi/access/sim.de # name or mac??
-
-  ALLOW_PLAIN_TELEGRAM:
-    ref: ALLOW_PLAIN_TELEGRAM
+  allow-plain-telegram:
+    ref: allow-plain-telegram
     # user: id-<(b)ot?>
     # chat: id-<(p)ublic?><(g)iga?><(m)ega?><(c)hannel?><p(o)st?><(s)endMsg?>
     force:
@@ -69,16 +63,14 @@ rule.def:
     block:
       - /dev/mi/apps/org.telegram.messenger.willpowerless/chats/*-p*-*** # block public & non-mega
 
-  BLOCK_FOOD_DELIVERY:
-    ref: BLOCK_FOOD_DELIVERY
+  block-food-delivery:
+    ref: block-food-delivery
     block:
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.production.jet_external.com
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.cloudinary.com
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.wolt.com
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.uber.com
+      - /dev/mi/apps/com.wolt.android
+      - /dev/mi/apps/com.ubercab.eats
 
-  BLOCK_SOCIAL:
-    ref: BLOCK_SOCIAL
+  block-social:
+    ref: block-social
     block:
       - /dev/mi/apps/com.celzero.bravedns/domains/*.tiktokcdn.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.youtube.com
@@ -95,6 +87,26 @@ rule.def:
       - /dev/mi/apps/com.celzero.bravedns/domains/*.web.telegram.org
 
       - /dev/mi/apps/com.google.android.youtube
+      - /dev/mi/apps/com.netflix.mediaclient
+
+  block-finance-apps:
+    ref: block-finance-apps
+    block:
+      - /dev/mi/apps/com.starfinanz.smob.android.sfinanzstatus
+      - /dev/mi/apps/de.traderepublic.app
+
+  force-anxiety-journal:
+    ref: force-anxiety-journal
+    force:
+      - /dev/mi/apps/org.telegram.messenger.willpowerless
+      - /dev/mi/apps/org.telegram.messenger.willpowerless/users/7125505831-*
+    block:
+      - /dev/mi/apps/org.telegram.messenger.willpowerless/users/*-*
+      - /dev/mi/apps/org.telegram.messenger.willpowerless/chats/*-*
+
+  block-telegram-apps:
+    ref: block-telegram-apps
+    block:
       - /dev/mi/apps/org.telegram.messenger
       - /dev/mi/apps/*telegram*
       - /dev/mi/apps/app.nicegram
@@ -122,38 +134,28 @@ rule.def:
       - /dev/mi/apps/me.teleplus
       - /dev/mi/apps/tg.televpn.messenger
       - /dev/mi/apps/org.telelightpro.messenger
-      - /dev/mi/apps/com.w_.*
+      - /dev/mi/apps/com.w_*
       - /dev/mi/apps/org.metagram.messenger
-      - /dev/mi/apps/com.multitoolarlite.*
+      - /dev/mi/apps/com.multitoolarlite*
       - /dev/mi/apps/org.thunderdog.challegram
       - /dev/mi/apps/com.storegram.catalog.android
       - /dev/mi/apps/com.gatehousemedia.id3103
       - /dev/mi/apps/org.viento.colibri
-      - /dev/mi/apps/com.wTelegrassenger.*
+      - /dev/mi/apps/com.wTelegrassenger*
       - /dev/mi/apps/com.code0101prime
       - /dev/mi/apps/com.tel.picogramapp
 
-  BLOCK_FINANCE_APPS:
-    ref: BLOCK_FINANCE_APPS
+  disable-mobile-data:
+    ref: disable-mobile-data
     block:
-      - /dev/mi/apps/sparkasse # TODO
-      - /dev/mi/apps/traderepublic # TODO
+      - /dev/mi/access/sim.de # name or mac?? // TODO
 
-  BLOCK_GAMING_DOMAINS:
-    ref: BLOCK_GAMING_DOMAINS
+  block-gaming-domains:
+    ref: block-gaming-domains
     block:
-      - /dev/deimos/domain/steam # TODO
+      - /dev/deimos/domain/steam  # TODO
 
-  BLOCK_PHONE_EVERYTHING: # TODO
-    ref: BLOCK_PHONE_EVERYTHING
+  block-phone-everything:
+    ref: block-phone-everything
     block:
-      - /dev/mi/apps/*
-
-  FORCE_ANXIETY_JOURNAL: # TODO
-    ref: FORCE_ANXIETY_JOURNAL
-    force:
-      - /dev/mi/apps/org.telegram.messenger.willpowerless
-      - /dev/mi/apps/org.telegram.messenger.willpowerless/chats/anxiety-debunker
-    block:
-      - /dev/mi/apps/org.telegram.messenger.willpowerless/users/*
-      - /dev/mi/apps/org.telegram.messenger.willpowerless/chats/*
+      - /dev/mi/apps/* # TODO
