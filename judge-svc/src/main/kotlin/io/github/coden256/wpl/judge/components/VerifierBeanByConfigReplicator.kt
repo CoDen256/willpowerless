@@ -70,7 +70,7 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
 
                 beanFactory.registerBeanDefinition(newBeanName, beanDefinition)
             }
-        beanFactory.removeBeanDefinition(originalBeanName)
+//        beanFactory.removeBeanDefinition(originalBeanName)
     }
 
     fun <T> bindProperties(prefix: String, targetClass: Class<T>): T {

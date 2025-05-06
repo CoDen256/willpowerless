@@ -14,6 +14,10 @@ import kotlin.jvm.optionals.getOrNull
 class LawAggregatingJudge(
     private val laws: List<Law>
 ) : Judge, Logging {
+
+    init {
+        laws
+    }
     override fun laws(): List<Law> {
         return laws
     }

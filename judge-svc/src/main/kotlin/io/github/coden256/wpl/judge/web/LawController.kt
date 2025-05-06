@@ -1,8 +1,7 @@
 package io.github.coden256.wpl.judge.web
 
-import io.github.coden256.wpl.judge.core.Judge
-import io.github.coden256.wpl.judge.core.Law
-import io.github.coden256.wpl.judge.core.RulingTree
+import io.github.coden256.wpl.judge.config.RulingSet
+import io.github.coden256.wpl.judge.core.*
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,15 +17,17 @@ class LawController(
 ) {
 
     @GetMapping("/")
-    fun getLaws(): ResponseEntity<Map<Int, Law>> {
+    fun getLaws(): ResponseEntity<Map<Int, SimpleLaw>> {
         return judge
             .laws()
+            .map { it.simple() }
+            .filter { it.enabled }
             .associateBy { it.priority }
             .let { ResponseEntity.ok(it) }
     }
 
     @GetMapping("/{law}")
-    fun getLaw(@PathVariable law: Int): Mono<ResponseEntity<RulingTree>> {
+    fun getLaw(@PathVariable law: Int): Mono<ResponseEntity<MutableMap<String, Ruling>>> {
         return judge
             .laws()
             .firstOrNull { it.priority == law }
@@ -34,9 +35,29 @@ class LawController(
             ?.map {
                 ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(it)
+                    .body(it.added)
             }
             ?: Mono.just(ResponseEntity.notFound().build())
     }
+
+    private fun Law.simple(): SimpleLaw {
+        return SimpleLaw(
+            name = name,
+            verifiers = verifiers.mapNotNull { it::class.simpleName },
+            rulingSet = rulingSet,
+            description = description,
+            priority = priority,
+            enabled = enabled,
+        )
+    }
+
+    data class SimpleLaw(
+        val name: String,
+        val verifiers: List<String>,
+        val rulingSet: RulingSet,
+        val description: String,
+        val priority: Int,
+        val enabled: Boolean
+    )
 }
 
