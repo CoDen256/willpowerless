@@ -1,7 +1,6 @@
 package io.github.coden256.wpl.judge.laws
 
 import io.github.coden256.wpl.judge.config.MultipleLawProperties
-import io.github.coden256.wpl.judge.config.RulingRegistry
 import io.github.coden256.wpl.judge.core.LawRuling
 import io.github.coden256.wpl.judge.verifiers.Verifier
 import org.springframework.stereotype.Component
@@ -20,7 +19,6 @@ data class JudgeLaw(
 class JudgeLawProvider(
     private val properties: MultipleLawProperties,
     private val verifiers: List<Verifier<*>>,
-    private val registry: RulingRegistry
 ){
 
     init {
@@ -29,11 +27,11 @@ class JudgeLawProvider(
 
     fun get(): List<JudgeLaw> {
         val verifiersByParent = verifiers.groupBy { it.definition.parent }
-        return properties.laws.mapIndexed { index, law ->
+        return properties.mapIndexed { index, law ->
             JudgeLaw(
                 law.name,
                 verifiersByParent[law.name] ?: emptyList(),
-                registry.getRules(law.out),
+                emptyList(),
                 law.description,
                 index
             )

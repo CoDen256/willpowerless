@@ -1,4 +1,10 @@
-judge.laws:
+define: &ruling2
+  force:
+    - /dev/openwrt/access/${dev.mi0}
+  block:
+    - "stuff"
+
+laws:
   - name: "Allow home office"
     description: Allow internet access during home office hours
     verify:
@@ -6,7 +12,7 @@ judge.laws:
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
         timeRange: 08:00 - 16:00
     out:
-      - ${rul.ruling2}
+      - *ruling2
 
   - name: "Allow Restoration"
     description: Allow everything in order to rest and recover in case of sickness or vacation
@@ -60,24 +66,14 @@ judge.laws:
     description: "Prohibit overconsumption of social media and brain rotting"
     out: []
 
-rulings:
-  disable-home-access:
-    block:
-      - /dev/openwrt/access/${dev.mi0}
-      - /dev/openwrt/access/${dev.mi1}
-      - /dev/openwrt/access/${dev.thinkpad}
-      - /dev/openwrt/access/${dev.deimos0}
-      - /dev/openwrt/access/${dev.deimos1}
-      - /dev/openwrt/access/${dev.proj}
-rul:
-  ruling2: "2"
-##    block:
-##      - /alpha
-##    force:
-##      - /beta
-##  ruling2:
-##    block:
-##      - /gamma
+dev:
+  mi0: "34:1C:F0:CD:FA:E8"
+  mi1: "C2:F2:57:9C:EE:27"
+  thinkpad: "10:6F:D9:A0:1C:D1"
+  deimos0: "0A:DF:73:F0:9D:8B"
+  deimos1: "00:C0:CA:AD:D0:23"
+  proj: "DC:A3:A2:08:14:56"
+
 api:
   wellpass:
     host: https://qualitrain.netpulse.com
