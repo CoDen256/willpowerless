@@ -52,6 +52,9 @@ class ImpulseRulingSetApplicationTests {
     @Test
     fun contextLoads(){
 
+        judge.laws().forEach {
+            it.verify().block()
+        }
         laws
 
     }

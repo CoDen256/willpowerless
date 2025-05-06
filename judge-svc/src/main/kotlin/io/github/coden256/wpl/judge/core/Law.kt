@@ -23,6 +23,7 @@ data class Law(
 
         return Mono
             .firstWithValue(verificationResults)
+            .onErrorComplete()
             .switchIfEmpty(Mono.empty())
             .map { success ->
                 val root = RulingTree()
