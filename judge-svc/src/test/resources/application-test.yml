@@ -1,4 +1,4 @@
-laws.define:
+law.def:
   - name: "✅ Allow home office"
     description: Allow internet access during home office hours
     verify:
@@ -6,7 +6,7 @@ laws.define:
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
         timeRange: 08:00 - 19:00
     out:
-      - ${rules.define.ruling2.ref}
+      - ${rule.def.ruling2.ref}
 
   - name: "Allow Restoration"
     description: Allow everything in order to rest and recover in case of sickness or vacation
@@ -61,7 +61,7 @@ laws.define:
     out: []
 
 
-rules.define:
+rule.def:
   ruling2:
     ref: ruling2
     force:

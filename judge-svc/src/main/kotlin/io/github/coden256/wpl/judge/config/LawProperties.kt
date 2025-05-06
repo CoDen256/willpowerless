@@ -13,16 +13,16 @@ import org.springframework.stereotype.Component
 // TODO ROLE_INFRASTRUCTURE
 @ConfigurationProperties(prefix = MultipleLawProperties.PREFIX)
 data class MultipleLawProperties(
-    val define: List<LawProperties>,
+    val def: List<LawProperties>,
 ) : VerifierDefinitionProvider {
     companion object {
-        const val PREFIX = "laws"
+        const val PREFIX = "law"
     }
 
     private val definitions = loadDefinitions()
 
     private fun loadDefinitions(): List<VerifierDefinition> {
-        return define.flatMapIndexed { index, law -> getVerifierDefinitions(law, index) }
+        return def.flatMapIndexed { index, law -> getVerifierDefinitions(law, index) }
     }
 
     private fun getVerifierDefinitions(
@@ -31,7 +31,7 @@ data class MultipleLawProperties(
     ): List<VerifierDefinition> {
         val definitions = parent.verify ?: return emptyList()
         val definitionPath: (Int) -> String = {
-            "$PREFIX.${::define.name}[$parentIndex].${LawProperties::verify.name}[$it]"
+            "$PREFIX.${::def.name}[$parentIndex].${LawProperties::verify.name}[$it]"
         }
 
         return definitions.mapIndexed { index, it ->
@@ -60,9 +60,9 @@ data class LawProperties(
 }
 
 //@ConfigurationProperties(MultipleRulingProperties.PREFIX)
-class MultipleRulingProperties(val define: Map<String, RulingSet>) {
+class MultipleRulingProperties(val def: Map<String, RulingSet>) {
     companion object {
-        const val PREFIX = "rules"
+        const val PREFIX = "rule"
     }
 }
 
@@ -97,7 +97,7 @@ class RuleConverter(val environment: Environment) : Converter<String, RulingSet>
         return Binder
             .get(environment)
             .bind(
-                "${MultipleRulingProperties.PREFIX}.${MultipleRulingProperties::define.name}.$name",
+                "${MultipleRulingProperties.PREFIX}.${MultipleRulingProperties::def.name}.$name",
                 RulingSet::class.java
             )
             .get()
