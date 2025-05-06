@@ -36,5 +36,6 @@ data class VerifierDefinition(
     val type: String,
     val path: String,
     val parent: String,
+    val parentIndex: Int,
     val index: Int
 )

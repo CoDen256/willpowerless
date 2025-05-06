@@ -39,6 +39,7 @@ data class MultipleLawProperties(
                 it.type,
                 definitionPath(index),
                 parent.name,
+                parentIndex,
                 index
             )
         }

@@ -9,13 +9,17 @@ import org.springframework.beans.factory.support.GenericBeanDefinition
 import org.springframework.boot.context.properties.bind.Binder
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
+import org.springframework.core.Ordered
+import org.springframework.core.PriorityOrdered
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
 @Component
-class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAware {
+class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAware
+//    PriorityOrdered
+{
 
     private lateinit var applicationContext: ApplicationContext
     private lateinit var beanFactory: DefaultListableBeanFactory
@@ -52,7 +56,7 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
         verifierDefinitionProvider
             .getVerifierDefinitionsByClass(originalBean::class)
             .forEachIndexed { index, definition ->
-                val newBeanName = "${originalBeanName}_copy_${definition.parent}_${definition.index}"
+                val newBeanName = "${originalBeanName}_copy_${definition.parentIndex}_${definition.index}"
 
                 // Create a new bean definition based on the original
                 val beanDefinition = GenericBeanDefinition().apply {
@@ -87,4 +91,8 @@ class VerifierBeanByConfigReplicator : BeanPostProcessor, ApplicationContextAwar
             return Binder.get(applicationContext.environment)
         }
     }
+
+//    override fun getOrder(): Int {
+//        return Ordered.HIGHEST_PRECEDENCE;
+//    }
 }
