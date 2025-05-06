@@ -6,16 +6,17 @@ import io.github.coden256.wpl.judge.core.Verifier
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 
 @Configuration
-@EnableConfigurationProperties(MultipleLawProperties::class, MultipleRulingProperties::class)
+@EnableConfigurationProperties(MultipleLawProperties::class)
 class JudgeConfiguration {
 
     @Bean
-    fun laws(properties: MultipleLawProperties, verifiers: List<Verifier<*>>): List<Law> {
+    fun laws(properties: MultipleLawProperties, verifiers: List<Verifier<*>>, environment: Environment): List<Law> {
         val verifiersByParent = verifiers.groupBy { it.definition.parent }
 
-        return properties.laws.mapIndexed { index, lawDefinition ->
+        return properties.define.mapIndexed { index, lawDefinition ->
             Law(
                 lawDefinition.name,
                 verifiersByParent[lawDefinition.name] ?: emptyList(),

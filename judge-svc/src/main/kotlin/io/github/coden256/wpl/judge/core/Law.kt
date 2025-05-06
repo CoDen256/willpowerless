@@ -1,6 +1,7 @@
 package io.github.coden256.wpl.judge.core
 
 import io.github.coden256.wpl.judge.config.RulingSet
+import io.github.coden256.wpl.judge.verifiers.AlwaysValidVerifier
 import org.apache.logging.log4j.kotlin.Logging
 import reactor.core.publisher.Mono
 import java.time.Instant
@@ -13,12 +14,15 @@ data class Law(
     val priority: Int,
     val enabled: Boolean
 ): Logging{
-    fun verify(): Mono<RulingTree> {
-        val verificationResults: List<Mono<Success>> =
-            if (verifiers.isNotEmpty()) verifiers.map { it.verify() }
-            else listOf(Mono.just(Success("always valid", Instant.MAX)))
 
-        return Mono.firstWithValue(verificationResults)
+    val effectiveVerifers
+        get() = verifiers.ifEmpty { listOf(AlwaysValidVerifier) }
+
+    fun verify(): Mono<RulingTree> {
+        val verificationResults: List<Mono<Success>> = effectiveVerifers.map { it.verify() }
+
+        return Mono
+            .firstWithValue(verificationResults)
             .switchIfEmpty(Mono.empty())
             .map { success ->
                 val root = RulingTree()

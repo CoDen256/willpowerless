@@ -11,40 +11,42 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
 
 @Component
 @Import(CalendarAPIConfiguration::class)
 class CalenderAbsenceVerifier(
     private val calendar: Calendar
-): Verifier<CalenderAbsenceVerifier.Config>() {
-    data class Config(val expiryToDurationRate: Double,
-                      val maxExpiry: java.time.Duration,
-                      val minExpiry: java.time.Duration): VerifierConfig
+) : Verifier<CalenderAbsenceVerifier.Config>() {
+    data class Config(
+        val expiryToDurationRate: Double,
+        val maxExpiry: java.time.Duration,
+        val minExpiry: java.time.Duration
+    ) : VerifierConfig
 
     override fun verify(): Mono<Success> {
-//        val now = LocalDateTime.now(ZoneId.of("CET"))
-//        val latestAbsence = getLongAbsences(now)
-//            .maxByOrNull { it.end }
-//            ?: Absence("n/a", LocalDateTime.MIN, LocalDateTime.MIN)
-//
-//        val extra = getExtraDuration(latestAbsence.duration())
-//        val expiry = latestAbsence.end.plus(extra.toJavaDuration())
-//        val enabled = now.isBefore(expiry)
-//
-//        return Mono.just(
-//            Verdict(
-//            rulings(),
-//            enabled = enabled,
-//            expires = expiry,
-//            reason = "Is sick or on vacation: ${latestAbsence.end} + $extra",
-//            law = NAME
-//        )
-//        )
-        TODO("Not yet implemented")
+        val now = LocalDateTime.now(ZoneId.of("CET"))
+        val latestAbsence = getLongAbsences(now)
+            .maxByOrNull { it.end }
+            ?: Absence("n/a", LocalDateTime.MIN, LocalDateTime.MIN)
+
+        val extra = getExtraDuration(latestAbsence.duration())
+        val expiry = latestAbsence.end.plus(extra.toJavaDuration())
+        val enabled = now.isBefore(expiry)
+
+        if (!enabled) return Mono.empty()
+
+        return Mono.just(
+            Success(
+                "Is sick or on vacation: ${latestAbsence.end} + $extra",
+                expiry = expiry.atZone(ZoneId.of("CET")).toInstant()
+            )
+        )
     }
 
     // sick leaves or vacations

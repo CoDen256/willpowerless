@@ -1,19 +1,19 @@
-judge.laws:
+laws.define:
   - name: "✅ Allow home office"
     description: Allow internet access during home office hours
     verify:
       - type: "ScheduleVerifier"
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
-        timeRange: 08:00 - 16:00
+        timeRange: 08:00 - 19:00
     out:
-      - ${judge.rules.ruling2.ref}
+      - ${rules.define.ruling2.ref}
 
   - name: "Allow Restoration"
     description: Allow everything in order to rest and recover in case of sickness or vacation
     verify:
       - type: CalenderAbsenceVerifier
-        expiryToDurationRate: 1.8 # 1.8 (e.g. 10 days absence -> +10/1.8 ~ +5.5 days expiry)
-        maxExpiry: 7d
+        expiryToDurationRate: 0.01 # 1.8 (e.g. 10 days absence -> +10/1.8 ~ +5.5 days expiry)
+        maxExpiry: 27d
         minExpiry: 0d
     out: []
 
@@ -61,17 +61,17 @@ judge.laws:
     out: []
 
 
-judge.rules:
+rules.define:
   ruling2:
     ref: ruling2
     force:
-      - /dev/openwrt/access/${dev.mi0}
+      - /dev/openwrt/access/${dev.mi}
     block:
       - "stuff"
 
 
 dev:
-  mi0: "belo"
+  mi: "belo"
 
 api:
   wellpass:

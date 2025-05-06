@@ -13,14 +13,16 @@ import org.springframework.stereotype.Component
 // TODO ROLE_INFRASTRUCTURE
 @ConfigurationProperties(prefix = MultipleLawProperties.PREFIX)
 data class MultipleLawProperties(
-    val laws: List<LawProperties>,
-): VerifierDefinitionProvider {
-    companion object { const val PREFIX = "judge" }
+    val define: List<LawProperties>,
+) : VerifierDefinitionProvider {
+    companion object {
+        const val PREFIX = "laws"
+    }
 
     private val definitions = loadDefinitions()
 
     private fun loadDefinitions(): List<VerifierDefinition> {
-        return laws.flatMapIndexed { index, law -> getVerifierDefinitions(law, index) }
+        return define.flatMapIndexed { index, law -> getVerifierDefinitions(law, index) }
     }
 
     private fun getVerifierDefinitions(
@@ -29,7 +31,7 @@ data class MultipleLawProperties(
     ): List<VerifierDefinition> {
         val definitions = parent.verify ?: return emptyList()
         val definitionPath: (Int) -> String = {
-            "$PREFIX.${::laws.name}[$parentIndex].${LawProperties::verify.name}[$it]"
+            "$PREFIX.${::define.name}[$parentIndex].${LawProperties::verify.name}[$it]"
         }
 
         return definitions.mapIndexed { index, it ->
@@ -57,21 +59,20 @@ data class LawProperties(
     data class ReducedVerifierDefinition(val type: String)
 }
 
-@ConfigurationProperties(MultipleRulingProperties.PREFIX)
-class MultipleRulingProperties(val rules: Map<String, RulingSet>){
-    companion object { const val PREFIX = "judge" }
-    init {
-        rules
+//@ConfigurationProperties(MultipleRulingProperties.PREFIX)
+class MultipleRulingProperties(val define: Map<String, RulingSet>) {
+    companion object {
+        const val PREFIX = "rules"
     }
 }
 
 data class RulingSet(
-    val ref: String,
-    val block: List<String>,
-    val force: List<String>
-){
+    val ref: String, // MUST INIT
+    val block: List<String> = emptyList(),
+    val force: List<String> = emptyList()
+) {
     companion object {
-        fun List<RulingSet>.merge(): RulingSet{
+        fun List<RulingSet>.merge(): RulingSet {
             return RulingSet(
                 joinToString(",") { it.ref },
                 flatMap { it.block },
@@ -83,19 +84,22 @@ data class RulingSet(
 
 @ConfigurationPropertiesBinding
 @Component
-class RuleConverter(val environment: Environment): Converter<String, RulingSet> {
+class RuleConverter(val environment: Environment) : Converter<String, RulingSet> {
     override fun convert(source: String): RulingSet {
         try {
             return parseEntry(source)
         } catch (e: Exception) {
-            throw Exception("app.callback-mappings property is invalid. Must be a JSON object string")
+            throw Exception("Unable to parse rule: $source", e)
         }
     }
 
     private fun parseEntry(name: String): RulingSet {
         return Binder
             .get(environment)
-            .bind("${MultipleRulingProperties.PREFIX}.${MultipleRulingProperties::rules.name}.$name", RulingSet::class.java)
+            .bind(
+                "${MultipleRulingProperties.PREFIX}.${MultipleRulingProperties::define.name}.$name",
+                RulingSet::class.java
+            )
             .get()
     }
 }

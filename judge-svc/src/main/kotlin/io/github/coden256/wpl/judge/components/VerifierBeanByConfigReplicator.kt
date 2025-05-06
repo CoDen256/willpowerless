@@ -1,4 +1,4 @@
-package io.github.coden256.wpl.judge.verifiers
+package io.github.coden256.wpl.judge.components
 
 import io.github.coden256.wpl.judge.core.Verifier
 import io.github.coden256.wpl.judge.core.VerifierConfig

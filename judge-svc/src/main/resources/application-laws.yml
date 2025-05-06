@@ -1,0 +1,102 @@
+laws.define:
+  - name: "✅!! Allow home office"
+    description: Allow internet access during home office hours
+    verify:
+      - type: "ScheduleVerifier"
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
+        timeRange: 08:00 - 19:00
+    out:
+      - ${rules.define.disable-home-access.ref}
+
+  - name: "✅ Allow Restoration"
+    description: Allow everything in order to rest and recover in case of sickness or vacation
+    verify:
+      - type: CalenderAbsenceVerifier
+        expiryToDurationRate: 0.01 # 1.8 (e.g. 10 days absence -> +10/1.8 ~ +5.5 days expiry)
+        maxExpiry: 27d
+        minExpiry: 0d
+    out: []
+
+  - name: "✅ Allow Night Access"
+    description: Allow night access, since its unlikely to get abused
+    verify:
+      - type: ScheduleVerifier
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+        timeRange: 00:00 - 09:00
+    out: []
+
+  - name: "✅ Allow Night Beamer"
+    description: Allow night beamer, since others are involved
+    verify:
+      - type: ScheduleVerifier
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+        timeRange: 20:00 - 00:00
+      - type: ScheduleVerifier
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+        timeRange: 00:00 - 09:00
+    out: []
+
+  - name: "⛔ Force Gym"
+    description: Force regular gym visits
+    verify:
+      - type: WellpassVerifier
+        expiry: 5d
+        cache: 1h
+    out: []
+
+  - name: "⛔ Force Breaks"
+    description: Force regular breaks from computer/phone
+    verify:
+      - type: "ScheduleVerifier"
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+        timeRange: 08:00 - 18:00
+    out: []
+
+  - name: "🟡 Moderate A"
+    description: "Prohibit overconsumption of A"
+    out: []
+
+  - name: "🟡 Moderate Social"
+    description: "Prohibit overconsumption of social media and brain rotting"
+    out: []
+
+##laws:
+##  force-gym:
+##    description: "Force regular gym visits"
+##    rulings: [ enable-home-access ]
+##    expiry: 5d
+##    cache: 1h
+##  force-breaks:
+##    description: "Force regular breaks from computer/phone"
+##    rulings: [ enable-home-access ]
+##    enable: false
+##    schedule:
+##      - daysOfWeek: [MONDAY, TUESDAY, WEDNESDAY, SUNDAY]  # work days and hours
+##        timeRange: 08:00 - 18:00
+##        negate: true
+##  allow-rest:
+##    description: "Allow everything to rest and recover in case of sickness or vacation"
+##    rulings: [ enable-home-access ]
+##    expiryToDurationRate: 0.1 # 1.8
+##    maxExpiry: P16DT17H
+##    minExpiry: 0d
+##
+##  allow-beamer:
+##    description: "Allow beamer anyway during evenings"
+##    rulings: [ enable-beamer ]
+##    schedule:
+##      - daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+##        timeRange: 00:00 - 08:00
+##      - daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+##        timeRange: 22:00 - 23:59
+##      - daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+##        timeRange: 00:00 - 23:59
+##
+##  moderate-p:
+##    description: "Prohibit overconsumption of P"
+##    rulings: [ safe-home-browsing, enable-vpn, safe-phone-browsing ]
+##
+##  moderate-social:
+##    description: "Prohibit overconsumption of social media and brain rotting"
+##    rulings: [ enable-vpn, block-social-domains, allow-plain-telegram, disable-mobile-data ]
+#
