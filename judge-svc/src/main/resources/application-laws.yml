@@ -48,14 +48,14 @@ law.def:
     out:
       - ${rule.def.disable-home-access.ref}
 
-  - name: "⛔ Regular Use"
+  - name: "✅ Regular Use"
     description: Enable regular use of internet
     verify:
       - type: ScheduleVerifier
         daysOfWeek: [ THURSDAY, FRIDAY, SATURDAY ]
         timeRange: 00:00 - 23:59
     out:
-      - ${rule.def.disable-home-access.ref}
+      - ${rule.def.enable-home-access.ref}
 
   - name: "⛔ Touch grass"
     description: Disable access by default

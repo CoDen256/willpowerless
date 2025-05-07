@@ -7,7 +7,8 @@ rule.def:
       - /dev/openwrt/access/${dev.thinkpad}
       - /dev/openwrt/access/${dev.deimos0}
       - /dev/openwrt/access/${dev.deimos1}
-      - /dev/openwrt/access/${dev.proj}
+      - /dev/openwrt/access/${dev.proj0}
+      - /dev/openwrt/access/${dev.proj1}
 
   enable-home-access:
     ref: enable-home-access
@@ -17,12 +18,14 @@ rule.def:
       - /dev/openwrt/access/${dev.thinkpad}
       - /dev/openwrt/access/${dev.deimos0}
       - /dev/openwrt/access/${dev.deimos1}
-      - /dev/openwrt/access/${dev.proj}
+      - /dev/openwrt/access/${dev.proj0}
+      - /dev/openwrt/access/${dev.proj1}
 
   enable-beamer:
     ref: enable-beamer
     force:
-      - /dev/openwrt/access/${dev.proj}
+      - /dev/openwrt/access/${dev.proj0}
+      - /dev/openwrt/access/${dev.proj1}
 
   safe-home-browsing:
     ref: safe-home-browsing
@@ -85,9 +88,14 @@ rule.def:
       - /dev/mi/apps/com.celzero.bravedns/domains/*.redd.it
       - /dev/mi/apps/com.celzero.bravedns/domains/*.reddit.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.web.telegram.org
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.hdrezka.*
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.hdrezka-ua.*
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.rezka-ua.*
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.rezka.*
 
       - /dev/mi/apps/com.google.android.youtube
       - /dev/mi/apps/com.netflix.mediaclient
+      - /dev/mi/apps/com.falcofemoralis.hdrezkaapp
 
   block-finance-apps:
     ref: block-finance-apps
