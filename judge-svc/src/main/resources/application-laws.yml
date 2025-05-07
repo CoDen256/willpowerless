@@ -66,7 +66,12 @@ law.def:
     description: Force everyday journaling of anxiety
     verify:
       - type: AnxietyJournalVerifier
-        minChars: 10
+        minWords: 50
+        cosineThreshold: 0.7
+        jaccardThreshold: 0.6
+        expiry: 5d
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+        timeRange: 00:00 - 08:00
     out:
       - ${rule.def.force-anxiety-journal.ref}
 
