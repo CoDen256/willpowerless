@@ -62,6 +62,14 @@ law.def:
     out:
       - ${rule.def.disable-home-access.ref}
 
+  - name: "⛔ Force anxiety journaling"
+    description: Force everyday journaling of anxiety
+    verify:
+      - type: AnxietyJournalVerifier
+        minChars: 10
+    out:
+      - ${rule.def.force-anxiety-journal.ref}
+
   - name: "🟡 Moderate Money Spending"
     description: "Prohibit too much spending and card money movement outside of budget"
     out:

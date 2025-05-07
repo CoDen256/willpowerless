@@ -16,6 +16,14 @@
     <dependencies>
         <dependency>
             <groupId>io.github.coden256.lib</groupId>
+            <artifactId>database</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.coden256.lib</groupId>
             <artifactId>calendar-api</artifactId>
         </dependency>
         <dependency>
