@@ -44,7 +44,7 @@ law.def:
     verify:
       - type: WellpassVerifier
         expiry: 5d
-        cache: 1h
+        cache: 2h
     out:
       - ${rule.def.disable-home-access.ref}
 

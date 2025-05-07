@@ -8,7 +8,6 @@ rule.def:
       - /dev/openwrt/access/${dev.deimos0}
       - /dev/openwrt/access/${dev.deimos1}
       - /dev/openwrt/access/${dev.proj0}
-      - /dev/openwrt/access/${dev.proj1}
 
   enable-home-access:
     ref: enable-home-access
@@ -19,13 +18,11 @@ rule.def:
       - /dev/openwrt/access/${dev.deimos0}
       - /dev/openwrt/access/${dev.deimos1}
       - /dev/openwrt/access/${dev.proj0}
-      - /dev/openwrt/access/${dev.proj1}
 
   enable-beamer:
     ref: enable-beamer
     force:
       - /dev/openwrt/access/${dev.proj0}
-      - /dev/openwrt/access/${dev.proj1}
 
   safe-home-browsing:
     ref: safe-home-browsing
