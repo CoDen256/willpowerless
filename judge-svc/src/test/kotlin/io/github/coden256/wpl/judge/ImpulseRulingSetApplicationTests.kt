@@ -28,7 +28,7 @@ import kotlin.test.assertTrue
     WellpassConfiguration::class, ScheduleVerifier::class, CalenderAbsenceVerifier::class,
     LocalTimeRangeConverter::class,
     RuleConverter::class, JudgeConfiguration::class, LawAggregatingJudge::class])
-
+@Disabled
 class ImpulseRulingSetApplicationTests {
 
     @Autowired

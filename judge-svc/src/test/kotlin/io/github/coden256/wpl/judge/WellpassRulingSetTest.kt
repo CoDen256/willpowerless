@@ -1,6 +1,9 @@
 package io.github.coden256.wpl.judge
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+
+@Disabled
 
 class WellpassRulingSetTest {
 

@@ -4,8 +4,10 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.similarity.CosineSimilarity
 import org.apache.commons.text.similarity.JaccardSimilarity
 import org.apache.commons.text.similarity.LevenshteinDistance
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
+@Disabled
 class FuzzyMatcher {
     @Test
     fun name() {

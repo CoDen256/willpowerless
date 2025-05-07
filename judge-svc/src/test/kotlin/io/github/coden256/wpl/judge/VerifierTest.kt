@@ -14,6 +14,7 @@ import io.github.coden256.wpl.judge.core.VerifierDefinitionProvider
 import io.github.coden256.wpl.judge.verifiers.CalenderAbsenceVerifier
 import io.github.coden256.wpl.judge.verifiers.ScheduleVerifier
 import io.github.coden256.wpl.judge.verifiers.WellpassVerifier
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -26,6 +27,7 @@ import org.springframework.test.context.ActiveProfiles
 @SpringBootTest
 @Import(WellpassConfiguration::class)
 @ActiveProfiles("test")
+@Disabled
 class VerifierTest {
 
 

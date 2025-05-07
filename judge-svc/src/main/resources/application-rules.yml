@@ -94,6 +94,7 @@ rule.def:
     block:
       - /dev/mi/apps/com.starfinanz.smob.android.sfinanzstatus
       - /dev/mi/apps/de.traderepublic.app
+      - /dev/mi/apps/com.amazon.mShop.android.shopping
 
   force-anxiety-journal:
     ref: force-anxiety-journal

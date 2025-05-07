@@ -15,17 +15,19 @@ class ScheduleVerifier: Verifier<ScheduleVerifier.Config>() {
                       val negate: Boolean = false): VerifierConfig
 
     override fun verify(): Mono<Success> {
+        val r = syncVerify() ?: return Mono.empty()
+        return Mono.just(r)
+    }
+
+    fun syncVerify(): Success?{
         val current = LocalDateTime.now(ZoneId.of("CET"))
         val enabled = matches(current)
         val reason = "schedule matches: [${config.pretty()}]"
 
-        if (!enabled) return Mono.empty()
-
-        return Mono.just(
-            Success(
-                reason,
-                Instant.MAX
-            )
+        if (!enabled) return null
+        return Success(
+            reason,
+            Instant.MAX
         )
     }
 

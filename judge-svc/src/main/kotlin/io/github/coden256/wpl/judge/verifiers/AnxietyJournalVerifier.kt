@@ -28,6 +28,7 @@ class AnxietyJournalVerifier(
     data class Config(val minWords: Long,
                       val cosineThreshold: Double,
                       val jaccardThreshold: Double,
+                      val cosineJaccardSumThreshold: Double,
                       val expiry: Duration,
                       val timeRange: Range<LocalTime>,
                       val daysOfWeek: List<DayOfWeek>,
@@ -36,12 +37,12 @@ class AnxietyJournalVerifier(
 
     val verifier by lazy {
         ScheduleVerifier()
-            .apply { config = ScheduleVerifier.Config(config.timeRange, config.daysOfWeek, config.negate) }
+            .also { it.config = ScheduleVerifier.Config(config.timeRange, config.daysOfWeek, config.negate) }
     }
 
     override fun verify(): Mono<Success> {
        anxietyDatabase.transaction {
-             Anxieties.slice(Anxieties.description)
+             Anxieties.slice(Anxieties.description, Anxieties.created)
                 .selectAll()
                 .orderBy(Anxieties.created, SortOrder.DESC)
                 .map { it[Anxieties.description] to it[Anxieties.created] }
@@ -55,8 +56,8 @@ class AnxietyJournalVerifier(
     }
 
     fun List<Pair<String, Instant>>.result(): Mono<Success>{
-        val schedule = verifier.verify().hasElement().block(Duration.ofSeconds(10)) ?: false
-        if (!schedule) return Mono.empty() // if not within schedule abort
+        verifier.syncVerify() ?: return Mono.empty()
+        // if not within schedule abort
 
         val last = maxByOrNull { it.second } ?: return Mono.empty()
         lastEntryExpired(last)?.let { return Mono.just(it) } // if expired, request new
@@ -73,7 +74,7 @@ class AnxietyJournalVerifier(
 
         return Success(
             expiry = expiry.toJavaInstant(),
-            reason = "Last entry was more than ${config.expiry.toDays()} days ago: ${last.first.substring(0, 15)} on ${last.second}"
+            reason = "Last entry was more than ${config.expiry.toDays()} days ago: <${last.first.substring(0, 20)}...> on ${last.second}"
         )
     }
 
@@ -84,17 +85,20 @@ class AnxietyJournalVerifier(
                 java.time.Instant.MAX
             )
         }
-
-        val detector = PlagiarismDetector(entries
-            .filter { it != last }
-            .map { it.first }, config.cosineThreshold, config.jaccardThreshold)
-
-        val plagiarized = detector.isPlagiarized(last.first) ?: return null
+        val score = getScore(last, entries).firstOrNull() {
+            (it.cosine >= config.cosineThreshold || it.jaccard >= config.jaccardThreshold) && (
+                    it.cosine+it.jaccard >= config.cosineJaccardSumThreshold)
+        } ?: return null
 
         return Success(
-            "Last entry was plagiarized: $last vs $plagiarized",
+            "Last entry was plagiarized: $last vs $score",
             java.time.Instant.MAX
         )
+    }
+
+    fun getScore(entry: Pair<String, Instant>, entries: List<Pair<String, Instant>>): List<PlagiarismDetector.Score> {
+        val detector = PlagiarismDetector(entries.filter { it != entry }.map { it.first })
+        return detector.scorePlagiarism(entry.first)
     }
 
     fun isWordCountInvalid(description: String):Int?{
@@ -111,29 +115,19 @@ class AnxietyJournalVerifier(
 
 class PlagiarismDetector(
     private val existingDescriptions: List<String>,
-    private val cosineThreshold: Double = 0.7,
-    private val jaccardThreshold: Double = 0.6
 ) {
     private val cosineSimilarity = CosineSimilarity()
     private val jaccardSimilarity = JaccardSimilarity()
 
-    // Thresholds (adjust based on your needs)
-    
-    fun score(newDescription: String): List<Triple<Double, Double, String>>{
+    fun scorePlagiarism(newDescription: String): List<Score>{
         return existingDescriptions.map {
             val cosineSim = cosineSimilarity.cosineSimilarity(
                 tokenize(it),
                 tokenize(newDescription)
             )
             val jaccardSim = jaccardSimilarity.apply(it, newDescription)
-            Triple(cosineSim,jaccardSim, it)
+            Score(cosineSim,jaccardSim, it)
         }
-    }
-
-    fun isPlagiarized(newDescription: String): String? {
-        return score(newDescription).firstOrNull { (cosineSim, jaccardSim) ->
-            cosineSim >= cosineThreshold || jaccardSim >= jaccardThreshold
-        }?.third
     }
 
     private fun tokenize(text: String): Map<CharSequence, Int> {
@@ -141,6 +135,12 @@ class PlagiarismDetector(
             .groupingBy { it }
             .eachCount()
     }
+
+    data class Score(
+        val cosine: Double,
+        val jaccard: Double,
+        val match: String
+    )
 }
 
 object Anxieties : Table("anxieties") {

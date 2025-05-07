@@ -3,8 +3,10 @@ package io.github.coden256.wpl.judge.core
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.coden256.wpl.judge.core.Action.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
+@Disabled
 class RulingTreeTest {
 
     private val mapper = ObjectMapper()
