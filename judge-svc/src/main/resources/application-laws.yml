@@ -8,6 +8,7 @@ law.def:
         minExpiry: 0d
     out:
       - ${rule.def.enable-home-access.ref}
+      - ${rule.def.enable-beamer.ref}
 
   - name: "✅ Allow Night Beamer"
     description: Allow night beamer, since others are involved
@@ -17,7 +18,7 @@ law.def:
         timeRange: 22:00 - 23:59
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
-        timeRange: 00:00 - 08:00
+        timeRange: 00:00 - 02:00
     out:
       - ${rule.def.enable-beamer.ref}
 
@@ -26,7 +27,7 @@ law.def:
     verify:
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
-        timeRange: 00:00 - 08:00
+        timeRange: 00:30 - 11:00
     out:
       - ${rule.def.enable-home-access.ref}
 
@@ -37,7 +38,7 @@ law.def:
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
         timeRange: 11:00 - 16:00
     out:
-      - ${rule.def.enable-home-access.ref}
+      - ${rule.def.enable-work-devices.ref}
 
   - name: "⛔ Force Gym"
     description: Force regular gym visits, disabling normal access
@@ -47,6 +48,7 @@ law.def:
         cache: 2h
     out:
       - ${rule.def.disable-home-access.ref}
+      - ${rule.def.disable-beamer.ref}
 
   - name: "✅ Regular Use"
     description: Enable regular use of internet
@@ -56,11 +58,13 @@ law.def:
         timeRange: 00:00 - 23:59
     out:
       - ${rule.def.enable-home-access.ref}
+      - ${rule.def.enable-beamer.ref}
 
   - name: "⛔ Touch grass"
     description: Disable access by default
     out:
       - ${rule.def.disable-home-access.ref}
+      - ${rule.def.disable-beamer.ref}
 
   - name: "⛔ Force anxiety journaling"
     description: Force everyday journaling of anxiety
@@ -76,20 +80,25 @@ law.def:
     out:
       - ${rule.def.force-anxiety-journal.ref}
 
+  - name: "🟡 Moderate food delivery"
+    description: Prohibit too much ordering food at home
+    out:
+      - ${rule.def.block-food-delivery.ref}
+
   - name: "🟡 Moderate Money Spending"
-    description: "Prohibit too much spending and card money movement outside of budget"
+    description: Prohibit too much spending and card money movement outside of budget
     out:
       - ${rule.def.block-finance-apps.ref}
 
   - name: "🟡 Moderate A"
-    description: "Prohibit overconsumption of A"
+    description: Prohibit overconsumption of A
     out:
       - ${rule.def.safe-home-browsing.ref}
       - ${rule.def.enable-vpn.ref}
       - ${rule.def.safe-phone-browsing.ref}
 
   - name: "🟡 Moderate Social"
-    description: "Prohibit overconsumption of social media and brain rotting"
+    description: Prohibit overconsumption of social media and brain rotting
     out:
       - ${rule.def.enable-vpn.ref}
       - ${rule.def.block-social.ref}

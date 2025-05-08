@@ -7,7 +7,6 @@ rule.def:
       - /dev/openwrt/access/${dev.thinkpad}
       - /dev/openwrt/access/${dev.deimos0}
       - /dev/openwrt/access/${dev.deimos1}
-      - /dev/openwrt/access/${dev.proj0}
 
   enable-home-access:
     ref: enable-home-access
@@ -17,11 +16,21 @@ rule.def:
       - /dev/openwrt/access/${dev.thinkpad}
       - /dev/openwrt/access/${dev.deimos0}
       - /dev/openwrt/access/${dev.deimos1}
-      - /dev/openwrt/access/${dev.proj0}
+
+  enable-work-devices:
+    ref:  enable-work-devices
+    force:
+      - /dev/openwrt/access/${dev.deimos0}
+      - /dev/openwrt/access/${dev.deimos1}
 
   enable-beamer:
     ref: enable-beamer
     force:
+      - /dev/openwrt/access/${dev.proj0}
+
+  disable-beamer:
+    ref: disable-beamer
+    block:
       - /dev/openwrt/access/${dev.proj0}
 
   safe-home-browsing:
@@ -68,6 +77,7 @@ rule.def:
     block:
       - /dev/mi/apps/com.wolt.android
       - /dev/mi/apps/com.ubercab.eats
+      - /dev/mi/apps/com.yopeso.lieferando
 
   block-social:
     ref: block-social
@@ -89,10 +99,14 @@ rule.def:
       - /dev/mi/apps/com.celzero.bravedns/domains/*.hdrezka-ua.*
       - /dev/mi/apps/com.celzero.bravedns/domains/*.rezka-ua.*
       - /dev/mi/apps/com.celzero.bravedns/domains/*.rezka.*
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.netflix.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.netflix.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.primevideo.com
 
       - /dev/mi/apps/com.google.android.youtube
       - /dev/mi/apps/com.netflix.mediaclient
       - /dev/mi/apps/com.falcofemoralis.hdrezkaapp
+      - /dev/mi/apps/com.amazon.avod.thirdpartyclient
 
   block-finance-apps:
     ref: block-finance-apps
