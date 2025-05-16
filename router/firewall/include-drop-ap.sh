@@ -11,7 +11,8 @@
 
 uci add firewall include
 
-echo 'ip ttl {254, 126, 62, 30} counter packets 7542 bytes 456224 log prefix "Dropped from AP: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' > /etc/custom_firewall.nft # the same as: nft insert "rule inet fw4 forward_lan ip ttl 254 reject
+echo  -e 'define ap_macs = { 72:33:6d, a0:ce:c8 }\nether saddr $ap_macs ip ttl {253, 254, 125, 126, 61, 62, 29, 30} counter packets 7542 bytes 456224 log prefix "Dropped from AP: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' > /etc/drop-ttl.nft
+# the same as: nft insert "rule inet fw4 forward_lan ip ttl 254 reject
 cat /etc/drop-ttl.nft
 
 uci set firewall.@include[-1].type='nftables'

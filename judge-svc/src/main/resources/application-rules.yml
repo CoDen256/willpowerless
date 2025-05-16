@@ -57,7 +57,7 @@ rule.def:
       - /dev/mi/apps/com.celzero.bravedns # prevent uninstall of vpn
       - /dev/mi/vpn/com.celzero.bravedns # always on vpn
 
-  safe-phone-browsing:
+  safe-phone-browsing: # TODO maybe use the same as in openwrt?
     ref: safe-phone-browsing
     force:
       - /dev/mi/apps/com.celzero.bravedns/dns/1-bdaacaaaeaaia
@@ -83,9 +83,9 @@ rule.def:
     ref: block-social
     block:
       - /dev/mi/apps/com.celzero.bravedns/domains/*.tiktokcdn.com
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.youtube.com
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.googlevideo.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.tiktokv.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.youtube.com
+#      - /dev/mi/apps/com.celzero.bravedns/domains/*.googlevideo.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.fbcdn.net
       - /dev/mi/apps/com.celzero.bravedns/domains/*.cdninstagram.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.instagram.com
@@ -94,14 +94,18 @@ rule.def:
       - /dev/mi/apps/com.celzero.bravedns/domains/*.twitter.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.redd.it
       - /dev/mi/apps/com.celzero.bravedns/domains/*.reddit.com
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.web.telegram.org
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.hdrezka.*
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.hdrezka-ua.*
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.rezka-ua.*
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.rezka.*
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.netflix.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/web.telegram.org
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.stream.voidboost.cc
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.vqserve.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.21wiz.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/hdrezka.pro
+      - /dev/mi/apps/com.celzero.bravedns/domains/hdrezka.biz
+      - /dev/mi/apps/com.celzero.bravedns/domains/rezka.biz
       - /dev/mi/apps/com.celzero.bravedns/domains/*.netflix.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.primevideo.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.amazon.de
+      - /dev/mi/apps/com.celzero.bravedns/domains/${custom[0]}
+      - /dev/mi/apps/com.celzero.bravedns/domains/${custom[1]}
 
       - /dev/mi/apps/com.google.android.youtube
       - /dev/mi/apps/com.netflix.mediaclient
