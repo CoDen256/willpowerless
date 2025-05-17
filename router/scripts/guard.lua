@@ -47,7 +47,6 @@ end
 local function un_lockdown()
     enable_rule("RULE_TOUCH_GRASS", 0)
     enable_rule("RULE_TOUCH_GRASS_BEAMER", 0)
-    set_led(1)
 end
 
 
@@ -178,12 +177,14 @@ end
 un_lockdown()
 
 if (not ok) then
+    set_led(0)
     print("Judge said something funky, ignoring for now any rules, not doing anything, removing lockdown")
     os.exit(1)
 end
 
 if (not data) then
-    print("Judge sent strange data, ignoring for now any rules")
+    set_led(0)
+    print("Judge sent strange data, ignoring for now any rules, removing lockdown")
     os.exit(1)
 end
 check_rulings(data)

@@ -10,8 +10,7 @@
 # TODO <limit rate 10/minute burst 1 packets> for logging only
 
 uci add firewall include
-
-echo  -e 'define ap_macs = { 72:33:6d, a0:ce:c8 }\nether saddr $ap_macs ip ttl {253, 254, 125, 126, 61, 62, 29, 30} counter packets 7542 bytes 456224 log prefix "Dropped from AP: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' > /etc/drop-ttl.nft
+echo  -e 'define ap_macs = { 72:33:6d:86:3e:bc, a0:ce:c8:5d:ba:8c, DC:A3:A2:08:14:56 }\nether saddr $ap_macs ip ttl {253, 254, 125, 126, 61, 62, 29, 30} counter packets 7542 bytes 456224 log prefix "Dropped from AP: " jump reject_to_wan comment "!fw4: ap-by-ttl-reject"' > /etc/drop-ttl.nft
 # the same as: nft insert "rule inet fw4 forward_lan ip ttl 254 reject
 cat /etc/drop-ttl.nft
 

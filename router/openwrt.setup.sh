@@ -16,6 +16,8 @@ mkdir /root/log
 # System -> general settings -> timezone
 
 ### Apply rules
+
+./firewall/include-drop-ap.sh # drop packets from Access Points to prevent sharing internet # TODO config dropping AP from judge
 ./firewall/rule-judge.sh
 ./firewall/rule-touch-grass.sh
 ./firewall/rule-touch-grass-beamer.sh
@@ -36,7 +38,7 @@ mkdir /root/log
 ./setup/disable-buttons.sh
 
 # Cron
-./setup/cron.sh
+./setup/cron.sh # TODO resetting config from judge
 
 # add extra scripts to /etc/
 ./scripts/led.lua.sh
