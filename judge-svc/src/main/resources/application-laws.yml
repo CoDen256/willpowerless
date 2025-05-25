@@ -27,7 +27,7 @@ law.def:
         timeRange: 03:45 - 11:00
       - type: ScheduleVerifier # others require it as well
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
-        timeRange: 11:00 - 16:00
+        timeRange: 11:00 - 15:00
     out:
       - ${rule.def.enable-beamer.ref}
 
@@ -45,7 +45,7 @@ law.def:
     verify:
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
-        timeRange: 11:00 - 16:00
+        timeRange: 11:00 - 15:00
     out:
       - ${rule.def.enable-work-devices.ref}
 
@@ -63,7 +63,7 @@ law.def:
     description: Enable regular use of internet
     verify:
       - type: ScheduleVerifier
-        daysOfWeek: [ THURSDAY, FRIDAY, SATURDAY ]
+        daysOfWeek: [ WEDNESDAY, THURSDAY, FRIDAY ]
         timeRange: 00:00 - 23:59
     out:
       - ${rule.def.enable-home-access.ref}
@@ -84,7 +84,7 @@ law.def:
         jaccardThreshold: 0.85
         cosineJaccardSumThreshold: 1.6
         expiry: 4d
-        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY ]
         timeRange: 17:00 - 23:00
     out:
       - ${rule.def.force-anxiety-journal.ref}
