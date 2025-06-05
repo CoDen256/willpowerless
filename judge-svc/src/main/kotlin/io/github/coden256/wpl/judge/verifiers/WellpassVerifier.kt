@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
 class WellpassVerifier(
     private val wellpass: Wellpass,
 ) : Verifier<WellpassVerifier.Config>(), Logging {
-    data class Config(val expiry: Duration, val cache: Duration) : VerifierConfig
+    data class Config(val expiry: Duration, val cache: Duration, val regex: Regex) : VerifierConfig
 
     private val checkins: Mono<CheckIns> by lazy { // MUST be lazy since config is initialized only after init method
         Mono.defer {
@@ -50,7 +50,5 @@ class WellpassVerifier(
             }
     }
 
-    private fun isValidGym(it: CheckIn) =
-        it.name.lowercase().contains("yoga|boulder|fitness first|kletter|fit/one".toRegex()) &&
-                it.name.lowercase().contains("leipzig|plagwitz".toRegex())
+    private fun isValidGym(it: CheckIn) = it.name.lowercase().matches(config.regex)
 }

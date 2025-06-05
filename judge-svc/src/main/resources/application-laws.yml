@@ -53,6 +53,7 @@ law.def:
     description: Force regular gym visits, disabling normal access
     verify:
       - type: WellpassVerifier
+        regex: .*(leipzig|plagwitz).*
         expiry: 4d
         cache: 2h
     out:
