@@ -70,14 +70,16 @@ class MultipleRulingProperties(val def: Map<String, RulingSet>) {
 data class RulingSet(
     val ref: String, // MUST INIT
     val block: List<String> = emptyList(),
-    val force: List<String> = emptyList()
+    val force: List<String> = emptyList(),
+    val allow: List<String> = emptyList()
 ) {
     companion object {
         fun List<RulingSet>.merge(): RulingSet {
             return RulingSet(
                 joinToString(",") { it.ref },
                 flatMap { it.block },
-                flatMap { it.force }
+                flatMap { it.force },
+                flatMap { it.allow }
             )
         }
     }

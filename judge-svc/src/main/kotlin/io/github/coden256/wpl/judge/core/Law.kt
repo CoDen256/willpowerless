@@ -40,6 +40,7 @@ data class Law(
 
     private fun RulingSet.toRulings(reason: String, expiry: Instant): Map<String, Ruling>{
         return block.associateWith { Ruling(Action.BLOCK, reason, priority, expiry) } +
-                force.associateWith { Ruling(Action.FORCE, reason, priority, expiry) }
+                force.associateWith { Ruling(Action.FORCE, reason, priority, expiry) } +
+                allow.associateWith { Ruling(Action.ALLOW, reason, priority, expiry) }
     }
 }

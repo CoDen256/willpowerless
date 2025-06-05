@@ -18,7 +18,7 @@ rule.def:
       - /dev/openwrt/access/${dev.deimos1}
 
   enable-work-devices:
-    ref:  enable-work-devices
+    ref: enable-work-devices
     force:
       - /dev/openwrt/access/${dev.deimos0}
       - /dev/openwrt/access/${dev.deimos1}
@@ -39,8 +39,8 @@ rule.def:
       - /dev/openwrt/dns/208.67.222.123
       - /dev/openwrt/dns/208.67.220.123
 
-  alternative-safe-home-browsing:
-    ref: alternative-safe-home-browsing
+  alt-safe-home-browsing:
+    ref: alt-safe-home-browsing
     force:
       - /dev/openwrt/dns/208.67.222.222
       - /dev/openwrt/dns/208.67.220.220

@@ -15,10 +15,10 @@ law.def:
     verify:
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
-        timeRange: 22:00 - 23:59
+        timeRange: 21:30 - 23:59
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
-        timeRange: 00:00 - 02:00 # first rethink barrier (30 min)
+        timeRange: 00:00 - 01:30 # first rethink barrier (30 min)
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
         timeRange: 02:30 - 03:30 # second rethink barrier (15 min)
