@@ -10,6 +10,27 @@ law.def:
       - ${rule.def.enable-home-access.ref}
       - ${rule.def.enable-beamer.ref}
 
+  # Service times, when is needed anyway
+  - name: "✅ Allow Beamer during day for others"
+    description: Allow beamer, since others are involved
+    enabled: false
+    verify:
+      - type: ScheduleVerifier
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
+        timeRange: 11:00 - 15:00
+    out:
+      - ${rule.def.enable-beamer.ref}
+
+  - name: "✅ Allow home office"
+    description: Allow internet access during home office hours
+    verify:
+      - type: ScheduleVerifier
+        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
+        timeRange: 11:00 - 15:00
+    out:
+      - ${rule.def.enable-work-devices.ref}
+
+  # General use and moderations of internet
   - name: "✅ Allow Night Beamer"
     description: Allow night beamer, since others are involved
     verify:
@@ -21,13 +42,10 @@ law.def:
         timeRange: 00:00 - 01:30 # first rethink barrier (30 min)
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
-        timeRange: 02:30 - 03:30 # second rethink barrier (15 min)
+        timeRange: 02:00 - 03:00 # second rethink barrier (15 min)
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
-        timeRange: 03:45 - 11:00
-      - type: ScheduleVerifier # others require it as well
-        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
-        timeRange: 11:00 - 15:00
+        timeRange: 03:15 - 11:00
     out:
       - ${rule.def.enable-beamer.ref}
 
@@ -36,18 +54,9 @@ law.def:
     verify:
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
-        timeRange: 00:30 - 11:00
+        timeRange: 00:00 - 11:00
     out:
       - ${rule.def.enable-home-access.ref}
-
-  - name: "✅ Allow home office"
-    description: Allow internet access during home office hours
-    verify:
-      - type: ScheduleVerifier
-        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY ]
-        timeRange: 11:00 - 15:00
-    out:
-      - ${rule.def.enable-work-devices.ref}
 
   - name: "⛔ Force Gym"
     description: Force regular gym visits, disabling normal access
@@ -76,6 +85,7 @@ law.def:
       - ${rule.def.disable-home-access.ref}
       - ${rule.def.disable-beamer.ref}
 
+  # Mobile device moderations
   - name: "⛔ Force anxiety journaling"
     description: Force everyday journaling of anxiety
     operator: all
