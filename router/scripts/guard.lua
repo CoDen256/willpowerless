@@ -5,6 +5,20 @@ local io = require("io")
 local json = require("luci.json")
 local jsonc = require("luci.jsonc")
 
+local led_other_devices = "wifi5g"
+local led_judge = "wan"
+local led_work = "lan"
+local led_projector = "wps"
+
+local mac_to_led = {
+    ["6f:d9"] = led_other_devices,
+    ["9b:9b"] = led_other_devices,
+    ["d0:9c"] = led_other_devices,
+    ["ca:ad"] = led_work,
+    ["f0:9d"] = led_work,
+    ["14:56"] = led_projector,
+}
+
 function trim(s)
     return (string.gsub(s, "^%s*(.-)%s*$", "%1"))
 end
@@ -24,29 +38,41 @@ local function enable_rule(rule, enable)
     os.execute("/etc/judge/enable " .. rule .. " " .. tostring(tonumber(enable)))
 end
 
-local function set_led(value)
-    os.execute("/etc/led " .. tostring(tonumber(value)))
+local function set_led(led, value)
+    os.execute("/etc/led " .. led .. " " .. tostring(tonumber(value)))
 end
 
 local function set_mac(rule, macs)
     if #macs == 0 then
-        set_led(1)
+        set_led(led_judge,1)
     else
-        set_led(-1)
+        set_led(led_judge,-1)
     end
     local mac_list = table.concat(macs, " ")
     os.execute("/etc/judge/set_mac " .. rule .. " " .. mac_list)
 end
 
+
 local function run_lockdown()
+    print("Running Lockdown since I cannot request judge")
     enable_rule("RULE_TOUCH_GRASS", 1)
     enable_rule("RULE_TOUCH_GRASS_BEAMER", 1)
-    set_led(0)
+    set_led(led_other_devices, 0)
+    set_led(led_judge, 0)
+    set_led(led_projector, 0)
+    set_led(led_work, 0)
+    os.exit(1)
 end
 
-local function un_lockdown()
+local function unlockdown()
     enable_rule("RULE_TOUCH_GRASS", 0)
     enable_rule("RULE_TOUCH_GRASS_BEAMER", 0)
+end
+
+local function abort_do_nothing(reason)
+    print(reason)
+    set_led(led_judge, 0)
+    os.exit(1)
 end
 
 
@@ -83,6 +109,14 @@ local function request(url)
     return true, code, parsed
 end
 
+local function update_led(mac, set)
+    for check, led in pairs(mac_to_led) do
+        if (mac:lower():match(check)) then
+            set_led(led, set)
+        end
+    end
+end
+
 local function extract_blocked_macs(json_data)
     local blocked_macs = {}
 
@@ -92,8 +126,13 @@ local function extract_blocked_macs(json_data)
         end
         -- Validate MAC format and check for BLOCK action
         if mac:match("^[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]$") and
-                data.ruling and data.ruling.action == "BLOCK" then
-            table.insert(blocked_macs, mac)
+                data.ruling then
+            if data.ruling.action == "BLOCK" then
+                update_led(mac, 0)
+                table.insert(blocked_macs, mac)
+            else
+                update_led(mac, 1)
+            end
         end
     end
 
@@ -124,6 +163,7 @@ local function check_rulings(json_data)
 
     print("Checking judge rulings for " .. ACCESS_RULE .. "\n" .. tostring(jsonc.stringify(target)))
     if (not target) then
+        set_led(led_judge, 0)
         print("No access rulings, abort")
         return
     end
@@ -170,22 +210,20 @@ local endpoint = get_endpoint()
 print("\n\n" .. formatted_time .. " - running " .. tostring(endpoint))
 local ok, code, data = request(endpoint)
 if (not code) then
-    print("Running Lockdown since I cannot request judge")
-    run_lockdown()
-    os.exit(1)
+    -- disable for now, if cannot access, then its ok, deployment problems
+    -- if no internet, there is no internet
+    -- run_lockdown()
+    abort_do_nothing("Judge not accessible. Do nothing.")
 end
-un_lockdown()
+
+--unlockdown()
 
 if (not ok) then
-    set_led(0)
-    print("Judge said something funky, ignoring for now any rules, not doing anything, removing lockdown")
-    os.exit(1)
+    abort_do_nothing("Judge said something totally funky, ignoring for now any rules, not doing anything, removing lockdown")
 end
 
 if (not data) then
-    set_led(0)
-    print("Judge sent strange data, ignoring for now any rules, removing lockdown")
-    os.exit(1)
+    abort_do_nothing("Judge sent strange data, ignoring for now any rules, removing lockdown")
 end
 check_rulings(data)
 check_dns(data)

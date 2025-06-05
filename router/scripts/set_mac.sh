@@ -6,7 +6,7 @@ cat << "EOF" > /etc/judge/set_mac
 #!/bin/sh -l
 
 if [ $# -lt 1 ]; then
-    echo "Usage: $0 VARIABLE_NAME [MAC_ADDR0, MAC_ADDR1, ...]"
+    echo "Usage: $0 (RULE_OPENWRT_ACCESS_RULING) [MAC_ADDR0, MAC_ADDR1, ...]"
     exit 1
 fi
 
