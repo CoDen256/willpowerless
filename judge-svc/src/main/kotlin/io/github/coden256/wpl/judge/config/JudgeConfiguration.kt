@@ -22,6 +22,7 @@ class JudgeConfiguration {
         return properties.def.mapIndexed { index, lawDefinition ->
             Law(
                 lawDefinition.name,
+                lawDefinition.operator,
                 verifiersByParent[lawDefinition.name] ?: emptyList(),
                 lawDefinition.out.merge(),
                 lawDefinition.description,

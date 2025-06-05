@@ -29,16 +29,8 @@ class AnxietyJournalVerifier(
                       val cosineThreshold: Double,
                       val jaccardThreshold: Double,
                       val cosineJaccardSumThreshold: Double,
-                      val expiry: Duration,
-                      val timeRange: Range<LocalTime>,
-                      val daysOfWeek: List<DayOfWeek>,
-                      val negate: Boolean = false
+                      val expiry: Duration
     ): VerifierConfig
-
-    val verifier by lazy {
-        ScheduleVerifier()
-            .also { it.config = ScheduleVerifier.Config(config.timeRange, config.daysOfWeek, config.negate) }
-    }
 
     override fun verify(): Mono<Success> {
        anxietyDatabase.transaction {
@@ -56,9 +48,6 @@ class AnxietyJournalVerifier(
     }
 
     fun List<Pair<String, Instant>>.result(): Mono<Success>{
-        verifier.syncVerify() ?: return Mono.empty()
-        // if not within schedule abort
-
         val last = maxByOrNull { it.second } ?: return Mono.empty()
         lastEntryExpired(last)?.let { return Mono.just(it) } // if expired, request new
         lastEntryInvalid(last, this)?.let { return Mono.just(it) } // if not expired but invalid still request

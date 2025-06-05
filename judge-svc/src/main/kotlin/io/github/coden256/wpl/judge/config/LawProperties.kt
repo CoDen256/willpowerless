@@ -50,10 +50,15 @@ data class MultipleLawProperties(
     }
 }
 
+enum class Operator{
+    ALL, ANY, NONE
+}
+
 data class LawProperties(
     val description: String,
     val name: String,
     val enabled: Boolean = true,
+    val operator: Operator = Operator.ANY,
     val verify: List<ReducedVerifierDefinition>? = null,
     val out: List<RulingSet>
 ) {

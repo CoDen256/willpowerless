@@ -22,7 +22,7 @@ class ScheduleVerifier: Verifier<ScheduleVerifier.Config>() {
     fun syncVerify(): Success?{
         val current = LocalDateTime.now(ZoneId.of("CET"))
         val enabled = matches(current)
-        val reason = "schedule matches: [${config.pretty()}]"
+        val reason = "Schedule matches: ${config.pretty()}"
 
         if (!enabled) return null
         return Success(
@@ -37,7 +37,7 @@ class ScheduleVerifier: Verifier<ScheduleVerifier.Config>() {
     }
 
     private fun Config.pretty(): String {
-        return "${if (!negate) "" else "!"}($timeRange, $daysOfWeek)"
+        return "${if (!negate) "" else "NOT "}{ at $timeRange on $daysOfWeek }"
     }
 }
 

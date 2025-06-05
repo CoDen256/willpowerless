@@ -1,5 +1,6 @@
 package io.github.coden256.wpl.judge.web
 
+import io.github.coden256.wpl.judge.config.Operator
 import io.github.coden256.wpl.judge.config.RulingSet
 import io.github.coden256.wpl.judge.core.*
 import org.springframework.http.MediaType
@@ -43,6 +44,7 @@ class LawController(
     private fun Law.simple(): SimpleLaw {
         return SimpleLaw(
             name = name,
+            operator = operator,
             verifiers = verifiers.mapNotNull { it::class.simpleName },
             rulingSet = rulingSet,
             description = description,
@@ -53,6 +55,7 @@ class LawController(
 
     data class SimpleLaw(
         val name: String,
+        val operator: Operator,
         val verifiers: List<String>,
         val rulingSet: RulingSet,
         val description: String,
