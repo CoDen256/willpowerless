@@ -60,6 +60,7 @@ law.def:
 
   - name: "⛔ Force Gym"
     description: Force regular gym visits, disabling normal access
+    enabled: false
     verify:
       - type: WellpassVerifier
         regex: .*(leipzig|plagwitz).*

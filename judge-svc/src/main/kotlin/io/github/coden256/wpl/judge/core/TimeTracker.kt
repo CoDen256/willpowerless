@@ -5,16 +5,27 @@ import io.github.coden256.utils.success
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.io.File
+import java.util.TreeMap
 import kotlin.time.Duration
 
 interface TimeTracker {
     fun start(): Result<Instant>
     fun stop(): Result<Session>
     fun sessions(): List<Session>
+    fun current(): Result<Session>
 }
 
 interface Budget {
-    fun request(sessions: List<Session>): Duration
+    fun request(sessions: List<Session>): TreeMap<Instant, Duration>
+}
+data class Session(val start: Instant, val stop: Instant){
+    fun duration(): Duration {
+        return stop - start
+    }
+
+    companion object {
+        fun Iterable<Session>.sum() = map { it.duration() }.reduce(Duration::plus)
+    }
 }
 
 interface RealtimeBudget {
@@ -23,35 +34,44 @@ interface RealtimeBudget {
 
 class TimeTrackerAwareBudget(private val tracker: TimeTracker, private val budget: Budget): RealtimeBudget{
     override fun request(): Duration {
-        return budget.request(tracker.sessions())
+        val history = tracker.sessions()
+        val current = tracker.current()
+        val now = current.map { it.stop }.getOrDefault(Clock.System.now())
+        val total = current.map { history.plus(it) }.getOrDefault(history)
+        val budgets = budget.request(total)
+        return budgets.ceilingEntry(now)?.value ?: Duration.INFINITE
     }
 }
-
-data class Session(val start: Instant, val stop: Instant)
-
 
 class InMemoryTimeTracker(initSessions: List<Session> = listOf(),
                           private var current: Instant? = null): TimeTracker {
     private val sessions = initSessions.toMutableList()
 
     override fun start(): Result<Instant> {
-        return current?.let { Result.failure(IllegalStateException("Clock already started at $it")) } // if present -> fail
-                ?: Clock.System.now().also { current = it }.success() // if absent -> set
+        current()
+            .onSuccess {
+                return Result.failure(IllegalStateException("Clock already started at $it"))
+            }
+            .onFailure {
+                val now = Clock.System.now()
+                current = now
+                return now.success()
+            }
+        return Result.failure(AssertionError("Unreachable statement"))
     }
 
     override fun stop(): Result<Session> {
-        return currentSession()
-            ?.also { sessions.add(it) }
-            ?.also { current = null }
-            .notNullOrFailure(IllegalStateException("Clock was not started"))
+        return current().onSuccess { sessions.add(it); current = null }
     }
 
     override fun sessions(): List<Session> {
-        return currentSession()?.let { sessions.plus(it) } ?: sessions
+        return sessions
     }
 
-    private fun currentSession(): Session? {
-        return current?.let { Session(it, Clock.System.now()) }
+    override fun current(): Result<Session> {
+        return current
+            .notNullOrFailure(IllegalStateException("No current session"))
+            .map { Session(it, Clock.System.now()) }
     }
 }
 
@@ -73,6 +93,10 @@ class InFileTimeTracker(private val file: File): TimeTracker{
 
     override fun sessions(): List<Session> {
         return delegate.sessions()
+    }
+
+    override fun current(): Result<Session> {
+        return delegate.current()
     }
 
     private fun load(file: File): TimeTracker {
