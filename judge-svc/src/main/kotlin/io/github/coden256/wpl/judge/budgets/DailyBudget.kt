@@ -25,8 +25,18 @@ class DailyBudget(
             return rangeMap
         }
 
+        val sessionsCutByDay = sessions.flatMap {
+            val startDate = it.start.toLocalDateTime(tz).date
+            val endDate = it.stop.toLocalDateTime(tz).date
+            if (startDate == endDate){
+                return@flatMap listOf(it)
+            }
+            val delimiter = endDate.atStartOfDayIn(tz)
+            return@flatMap listOf(Session(it.start, delimiter), Session(delimiter, it.stop))
+        }
+
         // Group sessions by day
-        val sessionsByDay = sessions.groupBy { session ->
+        val sessionsByDay = sessionsCutByDay.groupBy { session ->
             session.start.toLocalDateTime(tz).date
         }
 
@@ -47,4 +57,9 @@ class DailyBudget(
 
         return rangeMap
     }
+}
+
+
+fun main() {
+    println()
 }
