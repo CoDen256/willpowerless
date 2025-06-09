@@ -25,9 +25,7 @@ class AnxietyJournalVerifierTest {
             cosineThreshold = 0.7,
             jaccardThreshold = 0.85,
             expiry = Duration.ofDays(5),
-            daysOfWeek = DayOfWeek.entries,
             cosineJaccardSumThreshold = 1.5,
-            timeRange = Range.of(LocalTime.MIN, LocalTime.MAX)
         )
         anxietyJournalVerifier.verify()
     }

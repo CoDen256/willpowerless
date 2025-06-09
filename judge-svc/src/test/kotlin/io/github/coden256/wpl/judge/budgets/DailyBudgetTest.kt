@@ -1,122 +1,104 @@
 package io.github.coden256.wpl.judge.budgets
 
 import com.google.common.collect.Range
+import com.google.common.collect.RangeMap
+import com.google.common.collect.TreeRangeMap
+import com.google.common.truth.Truth.assertThat
+import io.github.coden256.wpl.judge.core.Budget
 import io.github.coden256.wpl.judge.core.Session
-import kotlinx.datetime.Instant
-import org.junit.jupiter.api.Assertions.*
-
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.MethodSource
-import java.util.stream.Stream
+import kotlinx.datetime.*
+import kotlin.test.Test
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-class BudgetCalculatorTest {
-    private val calculator = DailyBudget(budgetAmount)
+class DailyBudgetTest {
+    private val tz = TimeZone.of("UTC")
 
-    companion object {
-        private val budgetAmount = 4.hours
-        @JvmStatic
-        fun nonOverlappingSessionsProvider(): Stream<TestCase> = Stream.of(
-            // Case 1: No sessions - full budget available
-            TestCase(
-                sessions = emptyList(),
-                expected = mapOf(
-                    Range.atLeast(Instant.DISTANT_PAST) to budgetAmount
-                )
-            ),
 
-            // Case 2: Single session within budget
-            TestCase(
-                sessions = listOf(
-                    Session(Instant.DISTANT_PAST, Instant.DISTANT_PAST.plus(1.hours))
-                ),
-                expected = mapOf(
-                    Range.closedOpen(Instant.DISTANT_PAST, Instant.DISTANT_PAST.plus(1.hours))
-                            to budgetAmount.minus(1.hours),
-                    Range.atLeast(Instant.DISTANT_PAST.plus(1.hours))
-                            to budgetAmount.minus(1.hours)
-                )
-            ),
+    @Test
+    fun budgetCalculation(
+    ) {
+//        DailyBudget(4.hours, tz).assertCorrectDailyBudget(listOf(), map(
+//            Range.all<Instant>() to 4.hours
+//        ))
 
-            // Case 3: Multiple non-overlapping sessions
-            TestCase(
-                sessions = listOf(
-                    Session(Instant.DISTANT_PAST, Instant.DISTANT_PAST.plus(3.minutes)),
-                    Session(Instant.DISTANT_PAST.plus(1.hours),
-                        Instant.DISTANT_PAST.plus(2.hours))
-                ),
-                expected = mapOf(
-                    Range.closedOpen(Instant.DISTANT_PAST, Instant.DISTANT_PAST.plus(3.minutes))
-                            to budgetAmount.minus(3.minutes),
-                    Range.closedOpen(Instant.DISTANT_PAST.plus(3.minutes),
-                        Instant.DISTANT_PAST.plus(1.hours))
-                            to budgetAmount.minus(3.minutes),
-                    Range.closedOpen(Instant.DISTANT_PAST.plus(1.hours),
-                        Instant.DISTANT_PAST.plus(2.hours))
-                            to budgetAmount.minus(1.hours.plus(3.minutes)),
-                    Range.atLeast(Instant.DISTANT_PAST.plus(2.hours))
-                            to budgetAmount.minus(1.hours.plus(3.minutes))
-                )
-            ),
+//        DailyBudget(4.hours, tz).assertCorrectDailyBudget(listOf(
+//            "1. 13:00 - 1. 14:00"
+//        ), map(
+//            b("1. 00:00",               4.hours),
+//            v("1. 00:00 - 2. 00:00",    3.hours),
+//            a("2. 00:00",               4.hours)
+//        ))
 
-            // Case 4: Exact budget consumption
-            TestCase(
-                sessions = listOf(
-                    Session(Instant.DISTANT_PAST, Instant.DISTANT_PAST.plus(budgetAmount))
-                ),
-                expected = mapOf(
-                    Range.closedOpen(Instant.DISTANT_PAST, Instant.DISTANT_PAST.plus(budgetAmount))
-                            to Duration.ZERO,
-                    Range.atLeast(Instant.DISTANT_PAST.plus(budgetAmount))
-                            to Duration.ZERO
-                )
-            ),
+//        DailyBudget(4.hours, tz).assertCorrectDailyBudget(listOf(
+//            "1. 13:00 - 1. 14:00",
+//            "1. 14:00 - 1. 15:00",
+//            "1. 23:00 - 1. 23:59"
+//        ), map(
+//            b("1. 00:00",               4.hours),
+//            v("1. 00:00 - 2. 00:00",    1.hours + 1.minutes),
+//            a("2. 00:00",               4.hours)
+//        ))
 
-            // Case 5: Multiple sessions with gaps
-            TestCase(
-                sessions = listOf(
-                    Session(Instant.DISTANT_PAST, Instant.DISTANT_PAST.plus(1.hours)),
-                    Session(Instant.DISTANT_PAST.plus(2.hours),
-                        Instant.DISTANT_PAST.plus(3.hours))
-                ),
-                expected = mapOf(
-                    Range.closedOpen(Instant.DISTANT_PAST, Instant.DISTANT_PAST.plus(1.hours))
-                            to budgetAmount.minus(1.hours),
-                    Range.closedOpen(Instant.DISTANT_PAST.plus(1.hours),
-                        Instant.DISTANT_PAST.plus(2.hours))
-                            to budgetAmount.minus(1.hours),
-                    Range.closedOpen(Instant.DISTANT_PAST.plus(2.hours),
-                        Instant.DISTANT_PAST.plus(3.hours))
-                            to budgetAmount.minus(2.hours),
-                    Range.atLeast(Instant.DISTANT_PAST.plus(3.hours))
-                            to budgetAmount.minus(2.hours)
-                )
-            )
-        )
+        DailyBudget(4.hours, tz).assertCorrectDailyBudget(listOf(
+            "1. 13:00 - 1. 14:00",
+            "1. 14:00 - 1. 15:00",
+            "1. 23:00 - 1. 23:59",
+            "4. 20:00 - 4. 23:59",
+            "6. 19:00 - 6. 23:59",
+        ), map(
+            b("1. 00:00",               4.hours),
+            v("1. 00:00 - 2. 00:00",    1.hours + 1.minutes),
+            v("2. 00:00 - 4. 00:00",    4.hours),
+            v("4. 00:00 - 5. 00:00",    1.minutes),
+            v("5. 00:00 - 6. 00:00",    4.hours),
+            v("6. 00:00 - 7. 00:00",    0.hours),
+            a("7. 00:00",               4.hours)
+        ))
     }
 
-    @ParameterizedTest
-    @MethodSource("nonOverlappingSessionsProvider")
-    fun `calculateRemainingTime with non-overlapping sessions`(testCase: TestCase) {
-        // When
-        val result = calculator.request(testCase.sessions)
+    private fun b(inst: String, duration: Duration): Pair<Range<Instant>, Duration> {
+        return Range.lessThan(instant(inst)) to duration
+    }
 
-        // Then
-        assertEquals(testCase.expected.size, result.asMapOfRanges().size,
-            "Number of ranges should match")
+    private fun a(inst: String, duration: Duration): Pair<Range<Instant>, Duration> {
+        return Range.atLeast(instant(inst)) to duration
+    }
 
-        testCase.expected.forEach { (expectedRange, expectedDuration) ->
-            val actualDuration = result.get(expectedRange.lowerEndpoint())
-            assertEquals(expectedDuration, actualDuration,
-                "Remaining duration for range $expectedRange should match")
+    private fun v(inst: String, duration: Duration): Pair<Range<Instant>, Duration> {
+        val (start, stop) = inst.split(" - ")
+        return Range.closedOpen(instant(start), instant(stop)) to duration
+    }
+
+    private fun map(vararg map: Pair<Range<Instant>, Duration>): TreeRangeMap<Instant, Duration>{
+        return TreeRangeMap.create<Instant, Duration>().apply {
+            map.forEach { (range, duration) ->
+                put(range, duration)
+            }
         }
     }
+    
+    private fun Budget.assertCorrectDailyBudget(sessions: List<String>, expected: RangeMap<Instant, Duration>){
+        val actual = request(sessions.map { session(it) })
+        assertThat(actual.asMapOfRanges()).containsExactlyEntriesIn(
+            expected.asMapOfRanges()
+        )
+    }
+    
+    private fun session(startStop: String): Session {
+        val (start, stop) = startStop.split(" - ")
+        return session(start, stop)
+    }
 
-    data class TestCase(
-        val sessions: List<Session>,
-        val expected: Map<Range<Instant>, Duration>
-    )
+    private fun session(start: String, stop: String): Session {
+        return Session(
+            instant(start),
+            instant(stop),
+        )
+    }
+    private fun instant(str: String): Instant {
+        val (day, hour) = str.split(" ")
+        return LocalDate.parse("2007-12-0${day.dropLast(1)}").atTime(LocalTime.parse(hour)).toInstant(tz)
+    }
 }
