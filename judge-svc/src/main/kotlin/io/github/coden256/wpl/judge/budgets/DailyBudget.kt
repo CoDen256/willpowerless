@@ -10,85 +10,73 @@ import kotlin.time.Duration
 
 class DailyBudget(
     private val budget: Duration,
-    private val tz: TimeZone = TimeZone.of("CET")
 ): Budget {
 
     override fun request(sessions: List<Session>): RangeMap<Instant, Duration> {
-        val usage = calculateUsage(sessions, periods)
-        val remaining = TreeRangeMap.create<Instant, Duration>()
-
-        usage.asMapOfRanges().forEach { (range, usageDuration) ->
-            remaining.put(range, budget.minus(usageDuration).coerceAtLeast(Duration.ZERO))
-        }
-
-        return remaining
-    }
-
-    fun calculateUsage(
-        sessions: List<Session>,
-        periods: List<Range<Instant>>
-    ): RangeMap<Instant, Duration> {
         val rangeMap = TreeRangeMap.create<Instant, Duration>()
 
-        // Initialize all periods with zero usage
-        periods.forEach { range ->
-            rangeMap.put(range, Duration.ZERO)
+        if (sessions.isEmpty()) {
+            // No sessions - full budget available from now
+            rangeMap.put(Range.all(), budget)
+            return rangeMap
         }
 
-        // Add each session's duration to the appropriate periods
-        sessions.forEach { session ->
-            val sessionRange = Range.closedOpen(session.start, session.stop)
+        // Create continuous timeline covering all sessions
+        val timeline = createTimeline(sessions)
 
-            // Find all periods that overlap with this session
-            val overlapping = rangeMap.subRangeMap(sessionRange).asMapOfRanges()
+        // Calculate usage for each segment
+        val usageMap = calculateUsagePerSegment(sessions, timeline)
 
-            if (overlapping.isEmpty()) {
-                // Session spans multiple periods - we need to split it
-                val containingRange = rangeMap.getEntry(session.start)?.key
-                    ?: rangeMap.getEntry(session.stop)?.key
-                    ?: throw IllegalStateException("No period found for session")
-
-                val splitRanges = splitSessionAcrossPeriods(session, containingRange, rangeMap)
-                splitRanges.forEach { (range, duration) ->
-                    rangeMap.put(range, (rangeMap.get(range) ?: Duration.ZERO).plus(duration))
-                }
-            } else {
-                overlapping.forEach { (range, currentDuration) ->
-                    val overlapDuration = calculateOverlap(session, range)
-                    rangeMap.put(range, currentDuration.plus(overlapDuration))
-                }
-            }
+        // Calculate remaining budget for each segment
+        var remainingBudget = budget
+        for (segment in timeline) {
+            val usage = usageMap[segment] ?: Duration.ZERO
+            remainingBudget = (budget - usage).coerceAtLeast(Duration.ZERO)
+            rangeMap.put(segment, remainingBudget)
         }
+
+        // Extend to future
+        val lastSegment = timeline.last()
+        rangeMap.put(Range.atLeast(lastSegment.upperEndpoint()), remainingBudget)
 
         return rangeMap
     }
 
-    private fun calculateOverlap(session: Session, range: Range<Instant>): Duration {
-        val overlapStart = maxOf(session.start, range.lowerEndpoint())
-        val overlapEnd = minOf(session.stop, range.upperEndpoint())
-        return overlapStart - overlapEnd
-    }
+    private fun createTimeline(sessions: List<Session>): List<Range<Instant>> {
+        val points = sessions.flatMap { listOf(it.start, it.stop) }.toSortedSet()
+        val timeline = mutableListOf<Range<Instant>>()
 
-    private fun splitSessionAcrossPeriods(
-        session: Session,
-        containingRange: Range<Instant>,
-        rangeMap: RangeMap<Instant, Duration>
-    ): Map<Range<Instant>, Duration> {
-        val result = mutableMapOf<Range<Instant>, Duration>()
-        var remainingSession = session
-
-        while (remainingSession.duration() > Duration.ZERO) {
-            val currentRange = rangeMap.getEntry(remainingSession.start)?.key ?: containingRange
-            val rangeEnd = currentRange.upperEndpoint()
-
-            val splitPoint = minOf(remainingSession.stop, rangeEnd)
-            val splitDuration = remainingSession.start - splitPoint
-
-            result[currentRange] = splitDuration
-            remainingSession = Session(splitPoint, remainingSession.stop)
+        var prev: Instant? = null
+        for (point in points) {
+            prev?.let { timeline.add(Range.closedOpen(it, point)) }
+            prev = point
         }
 
-        return result
+        return timeline
+    }
+
+    private fun calculateUsagePerSegment(
+        sessions: List<Session>,
+        timeline: List<Range<Instant>>
+    ): Map<Range<Instant>, Duration> {
+        val usageMap = mutableMapOf<Range<Instant>, Duration>()
+
+        for (segment in timeline) {
+            var segmentUsage = Duration.ZERO
+
+            for (session in sessions) {
+                if (session.stop <= segment.lowerEndpoint()) continue
+                if (session.start >= segment.upperEndpoint()) continue
+
+                val overlapStart = maxOf(session.start, segment.lowerEndpoint())
+                val overlapEnd = minOf(session.stop, segment.upperEndpoint())
+                segmentUsage += overlapStart - overlapEnd
+            }
+
+            usageMap[segment] = segmentUsage
+        }
+
+        return usageMap
     }
 }
 
