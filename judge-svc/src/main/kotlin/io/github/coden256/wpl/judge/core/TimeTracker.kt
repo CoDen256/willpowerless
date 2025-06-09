@@ -1,5 +1,6 @@
 package io.github.coden256.wpl.judge.core
 
+import com.google.common.collect.RangeMap
 import io.github.coden256.utils.notNullOrFailure
 import io.github.coden256.utils.success
 import kotlinx.datetime.Clock
@@ -16,7 +17,7 @@ interface TimeTracker {
 }
 
 interface Budget {
-    fun request(sessions: List<Session>): TreeMap<Instant, Duration>
+    fun request(sessions: List<Session>): RangeMap<Instant, Duration>
 }
 data class Session(val start: Instant, val stop: Instant){
     fun duration(): Duration {
@@ -39,7 +40,7 @@ class TimeTrackerAwareBudget(private val tracker: TimeTracker, private val budge
         val now = current.map { it.stop }.getOrDefault(Clock.System.now())
         val total = current.map { history.plus(it) }.getOrDefault(history)
         val budgets = budget.request(total)
-        return budgets.ceilingEntry(now)?.value ?: Duration.INFINITE
+        return budgets.get(now) ?: Duration.ZERO
     }
 }
 
