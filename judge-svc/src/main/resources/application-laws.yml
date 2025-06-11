@@ -34,15 +34,11 @@ law.def:
   - name: "✅ Allow Night Beamer"
     description: Allow night beamer, since others are involved
     verify:
-      - type: ScheduleVerifier
+      - type: OneShotBudgetVerifier
+
+      - type: ScheduleVerifier # -> rethink barrier 1 (30 min) since 2:00
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
-        timeRange: 21:30 - 23:59
-      - type: ScheduleVerifier
-        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
-        timeRange: 00:00 - 01:30 # first rethink barrier (30 min)
-      - type: ScheduleVerifier
-        daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
-        timeRange: 02:00 - 03:00 # second rethink barrier (15 min)
+        timeRange: 02:30 - 03:00 # -> rethink barrier (15 min)
       - type: ScheduleVerifier
         daysOfWeek: [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
         timeRange: 03:15 - 11:00
@@ -60,7 +56,6 @@ law.def:
 
   - name: "⛔ Force Gym"
     description: Force regular gym visits, disabling normal access
-    enabled: false
     verify:
       - type: WellpassVerifier
         regex: .*(leipzig|plagwitz).*
@@ -128,3 +123,12 @@ law.def:
 
       - ${rule.def.allow-plain-telegram.ref}
       - ${rule.def.block-telegram-apps.ref}
+
+budget:
+  store: file:./session
+  start: 20:30:00
+  total: PT5H30M # -> 2:00 + 30 min budget
+  max-duration: PT3H30M
+  min-duration: PT30M
+  curve: 1.4
+  tz: CET

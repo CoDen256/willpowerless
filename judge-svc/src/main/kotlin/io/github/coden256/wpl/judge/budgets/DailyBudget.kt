@@ -58,8 +58,3 @@ class DailyBudget(
         return rangeMap
     }
 }
-
-
-fun main() {
-    println()
-}
