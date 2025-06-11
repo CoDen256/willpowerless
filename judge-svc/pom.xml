@@ -11,7 +11,7 @@
 
     <groupId>io.github.coden256.wpl</groupId>
     <artifactId>willpowerless-judge-svc</artifactId>
-    <version>6.0-verifiers</version>
+    <version>6.1-oneshot-budget</version>
 
     <dependencies>
         <dependency>

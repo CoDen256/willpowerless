@@ -121,7 +121,7 @@ class MinMaxBudget(
     }
 }
 
-fun main() {
+fun main_() {
     val store = SessionFileStorage(File("session"))
     val rangeStart = LocalTime(20, 30)
     val rangeLen = 5.hours + 30.minutes
