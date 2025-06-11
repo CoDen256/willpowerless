@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import kotlin.time.Duration
 
 @RestController
 @RequestMapping("/budget")
@@ -25,6 +26,6 @@ class BudgetController(
     @GetMapping("/")
     fun remaining(): ResponseEntity<String> {
         val remaining = oneShotBudget.remaining()
-        return if (remaining.isPositive()) ResponseEntity.ok(remaining.toString()) else ResponseEntity.badRequest().body(remaining.toString())
+        return if (remaining.isPositive()) ResponseEntity.ok(remaining.toIsoString()) else ResponseEntity.badRequest().body(remaining.toIsoString())
     }
 }

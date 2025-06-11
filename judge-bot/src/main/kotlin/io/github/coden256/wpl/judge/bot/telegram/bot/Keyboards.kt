@@ -4,10 +4,11 @@ import io.github.coden256.telegram.keyboard.Keyboard
 import io.github.coden256.telegram.keyboard.KeyboardButton
 import io.github.coden256.telegram.keyboard.keyboard
 
-fun withButtons(): Keyboard {
+fun withRequestButtons(): Keyboard {
     return keyboard {
-        row { b(BUTTON); b(BUTTON) }
+        row { b(GET_BUDGET); b(REQUEST_BUDGET) }
     }
 }
 
-val BUTTON = KeyboardButton("↩BUTTON", "BUTTON")
+val REQUEST_BUDGET = KeyboardButton("Request", "REQUEST")
+val GET_BUDGET = KeyboardButton("Check", "REMAINING")

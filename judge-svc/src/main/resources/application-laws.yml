@@ -125,7 +125,7 @@ law.def:
       - ${rule.def.block-telegram-apps.ref}
 
 budget:
-  store: file:./session
+  store: file:/persist/session
   start: 20:30:00
   total: PT5H30M # -> 2:00 + 30 min budget
   max-duration: PT3H30M

@@ -31,6 +31,10 @@
             <groupId>com.jsoizo</groupId>
             <artifactId>kotlin-csv-jvm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+        </dependency>
 
 <!--        <dependency>-->
 <!--            <groupId>com.github.skebir</groupId>-->

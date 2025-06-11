@@ -64,8 +64,8 @@ class RequestAwareOneShotBudget(
 
     override fun request(ref: Instant): Result<Unit> {
         val start = storage.get().getOrNull()
-        if (isInSession(start, ref)) return Result.failure(IllegalStateException("Session already exists: started at $ref"))
-        if (!isInsideRange(ref)) return Result.failure(IllegalArgumentException("Request is outside of the range: [$rangeStart - $rangeEnd]"))
+        if (isInSession(start, ref)) return Result.failure(IllegalStateException("Session already exists: started at ${start?.toLocalDateTime(tz)}"))
+        if (!isInsideRange(ref)) return Result.failure(IllegalArgumentException("Request is outside of the range: [$rangeStart - ${LocalTime.fromNanosecondOfDay(rangeEnd.toNanosecondOfDay()+1)}]"))
         storage.set(ref)
         return Result.success(Unit)
     }
