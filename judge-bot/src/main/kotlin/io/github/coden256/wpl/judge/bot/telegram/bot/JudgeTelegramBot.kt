@@ -39,19 +39,19 @@ class JudgeTelegramBot(
 
     private fun request(upd: Update){
         budgetEditor.request()
-            .onSuccess { sender.send("Success:\n$it", upd.chat()) }
-            .onFailure { sender.send("Failed to create budget: \n${it.message}", upd.chat())  }
+            .onSuccess { sender.send("✅ Success:\n\n$it", upd.chat()) }
+            .onFailure { sender.send("⚠\uFE0FFailed to create budget: \n\n${it.message}", upd.chat())  }
         replyGetBudget(upd)
     }
 
     private fun replyGetBudget(upd: Update){
         budgetEditor.remaining()
-            .onSuccess { sender.send("Budget available! \nRemaining: $it\nExpiry: ${getExpiryDateTime(it)}", upd.chat()) }
+            .onSuccess { sender.send("✅ Budget available! \nRemaining: $it\n\nExpiry: \uD83D\uDD59 ${getExpiryDateTime(it)}", upd.chat()) }
             .onFailure {
                 if (it is HttpJudge.BudgetExceededException){
-                    sender.send("${it.message}\nRemaining: ${it.budget}\nExpiry: ${getExpiryDateTime(it.budget)}", upd.chat())
+                    sender.send("❌ ${it.message}\nRemaining: ${it.budget}\n\nExpiry: \uD83D\uDD59 ${getExpiryDateTime(it.budget)}", upd.chat())
                 } else {
-                    sender.send("Unable to get budget info:\n${it.message}", upd.chat())
+                    sender.send("⚠\uFE0FUnable to get budget info:\n\n${it.message}", upd.chat())
                 }
             }
     }
