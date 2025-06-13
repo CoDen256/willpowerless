@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import kotlin.time.Duration
 
 
@@ -57,7 +58,8 @@ class JudgeTelegramBot(
     }
 
     private fun getExpiryDateTime(duration: Duration): LocalTime? {
-        return LocalDateTime.now(ZoneId.of("CET")).plusNanos(duration.inWholeNanoseconds).toLocalTime()
+        return LocalDateTime.now(ZoneId.of("CET")).plusNanos(duration.inWholeNanoseconds).toLocalTime().truncatedTo(
+            ChronoUnit.MINUTES)
     }
 
 }

@@ -39,5 +39,5 @@ class HttpJudge(
         return response.body?.string()?.let { Duration.parseIsoString(it) }.notNullOrFailure()
     }
 
-    class BudgetExceededException (val budget: Duration): Exception("Budget exceeded: $budget")
+    class BudgetExceededException (val budget: Duration): Exception("Budget exceeded!")
 }
