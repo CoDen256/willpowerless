@@ -12,6 +12,8 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.telegram.abilitybots.api.objects.Reply
 import org.telegram.telegrambots.meta.api.objects.Update
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 import kotlin.time.Duration
 
 
@@ -54,8 +56,8 @@ class JudgeTelegramBot(
             }
     }
 
-    private fun getExpiryDateTime(duration: Duration): LocalDateTime {
-        return LocalDateTime.now().plusNanos(duration.inWholeNanoseconds)
+    private fun getExpiryDateTime(duration: Duration): LocalTime? {
+        return LocalDateTime.now(ZoneId.of("CET")).plusNanos(duration.inWholeNanoseconds).toLocalTime()
     }
 
 }
