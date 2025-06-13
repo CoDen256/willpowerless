@@ -35,3 +35,4 @@ build/
 /base.application.yaml
 .attach_*
 /src/main/resources/application.yml
+application_.yaml
