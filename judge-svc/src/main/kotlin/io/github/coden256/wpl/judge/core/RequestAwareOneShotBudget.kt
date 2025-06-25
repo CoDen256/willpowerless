@@ -65,7 +65,7 @@ class RequestAwareOneShotBudget(
     override fun request(ref: Instant): Result<Unit> {
         val start = storage.get().getOrNull()
         if (isInSession(start, ref)) return Result.failure(IllegalStateException("Session already exists: started at ${start?.toLocalDateTime(tz)}"))
-        if (!isInsideRange(ref)) return Result.failure(IllegalArgumentException("Request is outside of the range: [$rangeStart - ${LocalTime.fromNanosecondOfDay(rangeEnd.toNanosecondOfDay()+1)}]"))
+        if (!isInsideRange(ref)) return Result.failure(IllegalArgumentException("Request is outside of the range: [$rangeStart - ${LocalTime.fromNanosecondOfDay(rangeEnd.toNanosecondOfDay())}]"))
         storage.set(ref)
         return Result.success(Unit)
     }
@@ -123,18 +123,18 @@ class MinMaxBudget(
 
 fun main_() {
     val store = SessionFileStorage(File("session"))
-    val rangeStart = LocalTime(20, 30)
-    val rangeLen = 5.hours + 30.minutes
+    val rangeStart = LocalTime(20, 25)
+    val rangeLen = 5.hours + 35.minutes
     val tz = TimeZone.of("CET")
     (1..30).forEach {
         val curve =   it*0.1
         println("---$curve---")
         val budget = MinMaxBudget(rangeStart, rangeLen, Range.of(
-            30.minutes, 3.hours + 30.minutes,
+            30.minutes, 3.hours + 35.minutes,
         ), curve)
-        val base = LocalDateTime.parse("2007-12-03T20:30").toJavaLocalDateTime()
-        (0..14*2).forEach {
-            val cur = base.plus((it*15).toLong(), ChronoUnit.MINUTES).toKotlinLocalDateTime()
+        val base = LocalDateTime.parse("2007-12-03T20:25").toJavaLocalDateTime()
+        (0..14*2*3).forEach {
+            val cur = base.plus((it*5).toLong(), ChronoUnit.MINUTES).toKotlinLocalDateTime()
             val b = budget.invoke(cur).toJavaDuration().truncatedTo(ChronoUnit.MINUTES).toKotlinDuration()
             println(cur.toString().drop(5) + " --> " + cur.toInstant(tz).plus(b).toLocalDateTime(tz).toString().drop(5) + ": "+ b)
         }

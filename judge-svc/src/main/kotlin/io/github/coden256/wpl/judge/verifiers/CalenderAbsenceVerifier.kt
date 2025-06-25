@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.time.Duration
@@ -31,7 +32,8 @@ class CalenderAbsenceVerifier(
 
     override fun verify(): Mono<Success> {
         val now = LocalDateTime.now(ZoneId.of("CET"))
-        val latestAbsence = getLongAbsences(now)
+        val latestAbsence = getLongAbsences()
+            .filter { it.start.isBefore(now) }
             .maxByOrNull { it.end }
             ?: Absence("n/a", LocalDateTime.MIN, LocalDateTime.MIN)
 
@@ -50,10 +52,9 @@ class CalenderAbsenceVerifier(
     }
 
     // sick leaves or vacations
-    private fun getLongAbsences(now: LocalDateTime): List<Absence> {
+    private fun getLongAbsences(): List<Absence> {
         return try {
-            calendar.absences()
-                .filter { it.start.isBefore(now) }
+            (calendar.absences())
                 .filter { it.duration() >= 23.9.hours }
                 .map {
                     when (it.end.dayOfWeek) {
@@ -63,6 +64,7 @@ class CalenderAbsenceVerifier(
                         else -> it
                     }
                 }
+                .map { it.copy(start = it.start.minusDays(1)) } // preparation for vacation
         } catch (e: Exception) {
             emptyList()
         }

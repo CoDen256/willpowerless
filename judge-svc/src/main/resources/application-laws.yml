@@ -9,6 +9,7 @@ law.def:
     out:
       - ${rule.def.enable-home-access.ref}
       - ${rule.def.enable-beamer.ref}
+      - ${rule.def.unblock-phone.ref}
 
   # Service times, when is needed anyway
   - name: "✅ Allow Beamer during day for others"
@@ -126,9 +127,9 @@ law.def:
 
 budget:
   store: file:/persist/session
-  start: 20:30:00
-  total: PT5H30M # -> 2:00 + 30 min budget
-  max-duration: PT3H30M
+  start: 20:27:00
+  total: PT5H33M # -> 2:00
+  max-duration: PT3H33M
   min-duration: PT30M
-  curve: 1.4
+  curve: 1.0
   tz: CET

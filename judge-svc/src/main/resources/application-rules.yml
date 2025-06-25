@@ -169,6 +169,41 @@ rule.def:
       - /dev/mi/apps/com.code0101prime
       - /dev/mi/apps/com.tel.picogramapp
 
+  unblock-phone:
+    ref: unblock-phone
+    allow:
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.tiktokcdn.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.tiktokv.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.youtube.com
+      #      - /dev/mi/apps/com.celzero.bravedns/domains/*.googlevideo.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.fbcdn.net
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.cdninstagram.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.instagram.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.twimg.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.x.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.twitter.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.redd.it
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.reddit.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/web.telegram.org
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.stream.voidboost.cc
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.vqserve.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.21wiz.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/hdrezka.pro
+      - /dev/mi/apps/com.celzero.bravedns/domains/hdrezka.biz
+      - /dev/mi/apps/com.celzero.bravedns/domains/rezka.biz
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.netflix.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.primevideo.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.amazon.de
+
+      - /dev/mi/apps/com.google.android.youtube
+      - /dev/mi/apps/com.netflix.mediaclient
+      - /dev/mi/apps/com.falcofemoralis.hdrezkaapp
+      - /dev/mi/apps/com.amazon.avod.thirdpartyclient
+
+      - /dev/mi/apps/com.wolt.android
+      - /dev/mi/apps/com.ubercab.eats
+      - /dev/mi/apps/com.yopeso.lieferando
+
   disable-mobile-data:
     ref: disable-mobile-data
     block:
