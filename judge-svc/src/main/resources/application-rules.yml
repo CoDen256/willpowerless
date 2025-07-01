@@ -106,6 +106,7 @@ rule.def:
       - /dev/mi/apps/com.celzero.bravedns/domains/*.amazon.de
       - /dev/mi/apps/com.celzero.bravedns/domains/${custom[0]}
       - /dev/mi/apps/com.celzero.bravedns/domains/${custom[1]}
+      - /dev/mi/apps/com.celzero.bravedns/domains/${custom[2]}
 
       - /dev/mi/apps/com.google.android.youtube
       - /dev/mi/apps/com.netflix.mediaclient
@@ -175,15 +176,15 @@ rule.def:
       - /dev/mi/apps/com.celzero.bravedns/domains/*.tiktokcdn.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.tiktokv.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.youtube.com
-      #      - /dev/mi/apps/com.celzero.bravedns/domains/*.googlevideo.com
+      - /dev/mi/apps/com.celzero.bravedns/domains/*.googlevideo.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.fbcdn.net
       - /dev/mi/apps/com.celzero.bravedns/domains/*.cdninstagram.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.instagram.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.twimg.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.x.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.twitter.com
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.redd.it
-      - /dev/mi/apps/com.celzero.bravedns/domains/*.reddit.com
+#      - /dev/mi/apps/com.celzero.bravedns/domains/*.redd.it
+#      - /dev/mi/apps/com.celzero.bravedns/domains/*.reddit.com
       - /dev/mi/apps/com.celzero.bravedns/domains/web.telegram.org
       - /dev/mi/apps/com.celzero.bravedns/domains/*.stream.voidboost.cc
       - /dev/mi/apps/com.celzero.bravedns/domains/*.vqserve.com
@@ -203,6 +204,13 @@ rule.def:
       - /dev/mi/apps/com.wolt.android
       - /dev/mi/apps/com.ubercab.eats
       - /dev/mi/apps/com.yopeso.lieferando
+
+      - /dev/mi/apps/com.starfinanz.smob.android.sfinanzstatus
+      - /dev/mi/apps/de.traderepublic.app
+      - /dev/mi/apps/com.amazon.mShop.android.shopping
+
+      - /dev/mi/apps/org.telegram.messenger.willpowerless/users/*-*
+      - /dev/mi/apps/org.telegram.messenger.willpowerless/chats/*-*
 
   disable-mobile-data:
     ref: disable-mobile-data
