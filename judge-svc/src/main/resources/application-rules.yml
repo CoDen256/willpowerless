@@ -61,6 +61,10 @@ rule.def:
     ref: safe-phone-browsing
     force:
       - /dev/mi/apps/com.celzero.bravedns/dns/1-bdaacaaaeaaia
+    block:
+      - /dev/mi/apps/com.celzero.bravedns/domains/${custom[0]}
+      - /dev/mi/apps/com.celzero.bravedns/domains/${custom[1]}
+      - /dev/mi/apps/com.celzero.bravedns/domains/${custom[2]}
 
   allow-plain-telegram:
     ref: allow-plain-telegram
@@ -104,9 +108,6 @@ rule.def:
       - /dev/mi/apps/com.celzero.bravedns/domains/*.netflix.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.primevideo.com
       - /dev/mi/apps/com.celzero.bravedns/domains/*.amazon.de
-      - /dev/mi/apps/com.celzero.bravedns/domains/${custom[0]}
-      - /dev/mi/apps/com.celzero.bravedns/domains/${custom[1]}
-      - /dev/mi/apps/com.celzero.bravedns/domains/${custom[2]}
 
       - /dev/mi/apps/com.google.android.youtube
       - /dev/mi/apps/com.netflix.mediaclient
@@ -210,6 +211,7 @@ rule.def:
       - /dev/mi/apps/com.amazon.mShop.android.shopping
 
       - /dev/mi/apps/org.telegram.messenger.willpowerless/users/*-*
+      - /dev/mi/apps/org.telegram.messenger.willpowerless/chats/*-p*-*** # TODO fix, that telegram kows to override it
       - /dev/mi/apps/org.telegram.messenger.willpowerless/chats/*-*
 
   disable-mobile-data:
